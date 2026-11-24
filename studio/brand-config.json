@@ -1,0 +1,109 @@
+{
+  "defaultProfileId": "ghinawi_halna",
+  "accountName": "غناوي هلنا",
+  "niche": "غناوي وشعر وموسيقى تراثية وعربية",
+  "platform": "Reels / TikTok / YouTube Shorts",
+  "language": "ar",
+  "dialectLabel": "ليبي / عربي تراثي",
+  "cta": "تابعني ومش هتندم",
+  "logoFile": "logo.png",
+  "hashtags": "#غناوي_هلنا #غناوي #شعر #تراث #ريلز #تيك_توك #Reels #TikTok #Shorts",
+  "colors": {
+    "primary": "#FFFFFF",
+    "accent": "#FFD60A",
+    "secondary": "#F59E0B",
+    "surface": "#0C0F18",
+    "surfaceOpacity": 0.82
+  },
+  "profiles": [
+    {
+      "id": "ghinawi_halna",
+      "label": "غناوي هلنا (الافتراضي)",
+      "icon": "🎵",
+      "accountName": "غناوي هلنا",
+      "niche": "غناوي وشعر وموسيقى تراثية وعربية",
+      "dialectLabel": "ليبي / عربي تراثي",
+      "cta": "تابعني ومش هتندم",
+      "logoFile": "logo.png",
+      "hashtags": "#غناوي_هلنا #غناوي #شعر #تراث #ريلز #تيك_توك #Reels #TikTok #Shorts",
+      "colors": {
+        "primary": "#FFFFFF",
+        "accent": "#FFD60A",
+        "secondary": "#F59E0B",
+        "surface": "#0C0F18",
+        "surfaceOpacity": 0.82
+      }
+    },
+    {
+      "id": "egyptian_identity",
+      "label": "الهوية المصرية",
+      "icon": "🦅",
+      "accountName": "الهوية المصرية",
+      "niche": "التاريخ والثقافة والتراث والهوية المصرية",
+      "dialectLabel": "مصري / عربي",
+      "cta": "تابعني ومش هتندم",
+      "logoFile": "logo-egyptian-identity.png",
+      "hashtags": "#الهوية_المصرية #مصر #تاريخ_مصر #الحضارة_المصرية #ثقافة_مصرية #ريلز #تيك_توك #Egypt #Reels #TikTok #Shorts",
+      "colors": {
+        "primary": "#FFFFFF",
+        "accent": "#F5C542",
+        "secondary": "#DC2626",
+        "surface": "#0E0C12",
+        "surfaceOpacity": 0.84
+      }
+    }
+  ],
+  "fonts": {
+    "arabic": "Cairo",
+    "english": "Montserrat"
+  },
+  "defaults": {
+    "styleMode": "fast_hook",
+    "captionStyle": "karaoke",
+    "bilingualCaptions": true,
+    "maxWords": 4,
+    "denoise": "light",
+    "voicePreset": "studio",
+    "lufs": -14,
+    "colorPreset": "warm_creator",
+    "fitMode": "cover",
+    "autoSmartCrop": true,
+    "renderQuality": "standard",
+    "lutFile": "",
+    "musicFile": "HEROICCC(chosic.com) (1).mp3",
+    "musicDb": -23,
+    "autoDuck": true,
+    "sfxEnabled": true,
+    "sfxDb": -5,
+    "teaserHookEnabled": true,
+    "teaserDuration": 3,
+    "teaserBadge": "شاهد للنهاية 🔥",
+    "showHookCard": true,
+    "autoCutSilences": true,
+    "whisperEnabled": true,
+    "whisperModel": "small",
+    "minSilence": 0.4,
+    "cutPad": 0.1,
+    "exportFolder": "D:\\غناوي هلنا"
+  },
+  "safeZones": {
+    "top": 150,
+    "bottom": 380,
+    "sides": 108
+  },
+  "glossary": [
+    { "wrong": "أنتي جرافيتي", "right": "Antigravity" },
+    { "wrong": "انتي جرافيتي", "right": "Antigravity" },
+    { "wrong": "هايبر فريمز", "right": "HyperFrames" },
+    { "wrong": "هايبرفريمز", "right": "HyperFrames" },
+    { "wrong": "شات جي بي تي", "right": "ChatGPT" },
+    { "wrong": "جيميناي", "right": "Gemini" },
+    { "wrong": "ريلز", "right": "Reels" },
+    { "wrong": "تيك توك", "right": "TikTok" },
+    { "wrong": "شورتس", "right": "Shorts" },
+    { "wrong": "ذكاء اصطناعي", "right": "الذكاء الاصطناعي" },
+    { "wrong": "كاب كات", "right": "CapCut" },
+    { "wrong": "بريمير", "right": "Premiere" }
+  ]
+}
+

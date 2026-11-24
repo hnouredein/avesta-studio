@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "skills": {
+    "figma": {
+      "source": "C:\\Users\\SMART_~1\\AppData\\Local\\Temp\\hf-skills-src",
+      "sourceType": "local",
+      "computedHash": "d0a4a7e31d093a150fa3f1f8d6795a8da59371c000edaec4f5cbc92ae3ef25a1"
+    },
+    "hyperframes": {
+      "source": "C:\\Users\\SMART_~1\\AppData\\Local\\Temp\\hf-skills-src",
+      "sourceType": "local",
+      "computedHash": "ae5c337906c4560efcb5da1b4cb04dc618c1936b3ea04afecbd2d3067ec8abfd"
+    },
+    "hyperframes-cli": {
+      "source": "C:\\Users\\SMART_~1\\AppData\\Local\\Temp\\hf-skills-src",
+      "sourceType": "local",
+      "computedHash": "d0fc5a7e080424f5d131c8a2f7e4802ebafe32ca1eb76e6671e6ca43b879752d"
+    },
+    "hyperframes-registry": {
+      "source": "C:\\Users\\SMART_~1\\AppData\\Local\\Temp\\hf-skills-src",
+      "sourceType": "local",
+      "computedHash": "8f7dd3f5b4c066dfc9f0ac37587b7fbb419d7bd7428fc85aa0afa0426af7826f"
+    },
+    "media-use": {
+      "source": "C:\\Users\\SMART_~1\\AppData\\Local\\Temp\\hf-skills-src",
+      "sourceType": "local",
+      "computedHash": "bf984dc93e402eeac6c07f3d4477073aaf16a19974ca9f2826ca99a94ad05e1f"
+    },
+    "remotion-to-hyperframes": {
+      "source": "C:\\Users\\SMART_~1\\AppData\\Local\\Temp\\hf-skills-src",
+      "sourceType": "local",
+      "computedHash": "041e9b2dfa7a95f3274201847d59462eb9dbda93e335fda1c47d44c2a37e9b46"
+    },
+    "reverse-any-video": {
+      "source": "C:\\Users\\SMART_~1\\AppData\\Local\\Temp\\hf-skills-src",
+      "sourceType": "local",
+      "computedHash": "6380081d13789179dec122989ee55a20644566105fdb87dd77a5a58027422527"
+    },
+    "slideshow": {
+      "source": "C:\\Users\\SMART_~1\\AppData\\Local\\Temp\\hf-skills-src",
+      "sourceType": "local",
+      "computedHash": "39e027bbe99088cb41e35f502060b3cff74a9927eb2040c2c3077ea0f52215cd"
+    },
+    "style-sampling": {
+      "source": "C:\\Users\\SMART_~1\\AppData\\Local\\Temp\\hf-skills-src",
+      "sourceType": "local",
+      "computedHash": "90d04cf36c64206b3e000b470ed62ed75f4030a3d14b695012ffe3f3ad767246"
+    }
+  }
+}

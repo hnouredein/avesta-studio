@@ -1,0 +1,27 @@
+{
+  "name": "avesta-studio",
+  "version": "1.0.0",
+  "description": "Avesta AI Video Studio — Desktop Application",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder --win --x64"
+  },
+  "build": {
+    "appId": "com.avesta.studio",
+    "productName": "Avesta Studio",
+    "win": {
+      "target": "nsis",
+      "icon": "../assets/logo/icon.ico"
+    },
+    "files": [
+      "main.js",
+      "preload.js"
+    ],
+    "extraResources": []
+  },
+  "devDependencies": {
+    "electron": "^31.7.7",
+    "electron-builder": "^24.13.3"
+  }
+}

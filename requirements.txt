@@ -1,0 +1,4 @@
+numpy
+edge-tts
+pedalboard
+yt-dlp

@@ -1,0 +1,619 @@
+<!doctype html>
+<html lang="ar" dir="rtl" data-brand-profile="ghinawi_halna">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>غناوي هلنا — استوديو المونتاج الاحترافي بضغطة واحدة</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.ico" />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <!-- Sidebar (RTL = right side) -->
+      <aside class="sidebar">
+        <div class="brand-header">
+          <div class="brand-mark" id="sidebarBrandMark">غ</div>
+          <div class="brand-meta">
+            <div class="brand-title" id="sidebarBrandName">غناوي هلنا</div>
+            <div class="brand-sub ltr">AI VIDEO STUDIO</div>
+          </div>
+        </div>
+
+        <nav class="nav-menu">
+          <button class="nav-item active" data-view="home">
+            <span class="nav-ico">🏠</span>
+            <span>الرئيسية</span>
+          </button>
+          <button class="nav-item" data-view="projects">
+            <span class="nav-ico">🎬</span>
+            <span>مشاريعي</span>
+            <span class="nav-badge" id="navProjectsCount">0</span>
+          </button>
+          <button class="nav-item" data-view="brand">
+            <span class="nav-ico">🎨</span>
+            <span>الهوية</span>
+          </button>
+        </nav>
+
+        <div class="sidebar-footer">
+          <div class="health-pill" id="sidebarHealthPill">
+            <span class="dot" id="sidebarHealthDot"></span>
+            <span id="sidebarHealthText">جاري فحص النظام...</span>
+          </div>
+          <button class="sidebar-mini-btn" id="btnOpenRootFolder">📂 فتح فولدر الاستوديو</button>
+        </div>
+      </aside>
+
+      <!-- Main Area -->
+      <main class="main-area">
+        <header class="topbar">
+          <div class="topbar-title-group">
+            <h1 id="pageTitle">الرئيسية</h1>
+            <p id="pageSubtitle">ارفع فيديوك وبضغطة زر واحدة يخرج جاهزاً للنشر</p>
+          </div>
+          <div class="topbar-actions">
+            <button class="btn btn-sm" id="btnRefreshAll">🔄 تحديث</button>
+          </div>
+        </header>
+
+        <div class="content-scroll">
+          <div class="content-inner">
+
+            <!-- VIEW: HOME -->
+            <section class="view-section active" id="view-home">
+              <!-- Brand Switcher -->
+              <div class="brand-switcher-bar" id="homeBrandSwitcher">
+                <span class="label-sm">الصفحة:</span>
+                <button type="button" class="brand-sw-btn active" data-profile="ghinawi_halna">
+                  <img src="/media/assets/logo/logo.png" alt="غناوي هلنا" onerror="this.style.display='none'" />
+                  <span>غناوي هلنا</span>
+                </button>
+                <button type="button" class="brand-sw-btn" data-profile="egyptian_identity">
+                  <img src="/media/assets/logo/logo-egyptian-identity.png" alt="الهوية المصرية" onerror="this.style.display='none'" />
+                  <span>الهوية المصرية</span>
+                </button>
+              </div>
+
+              <!-- Drop Zone -->
+              <div class="dropzone" id="mainDropzone">
+                <input type="file" id="fileInput" accept="video/mp4,video/quicktime,video/*" hidden />
+                <div class="dropzone-icon">📹</div>
+                <div class="dropzone-title">اسحب فيديو هنا وأفلته</div>
+                <div class="dropzone-sub">MP4 · MOV · AVI · MKV</div>
+                <button type="button" class="btn btn-accent" id="btnChooseFile">اختر من جهازك</button>
+
+                <div class="dropzone-or"><span>أو</span></div>
+
+                <div class="url-row">
+                  <span class="url-icon">🔗</span>
+                  <input
+                    type="url"
+                    id="urlInput"
+                    class="url-field"
+                    placeholder="رابط يوتيوب / تيك توك / فيسبوك..."
+                    dir="ltr"
+                  />
+                </div>
+              </div>
+
+              <!-- Optional title -->
+              <div class="optional-row">
+                <label class="label-sm" for="titleInput">عنوان اختياري</label>
+                <input type="text" id="titleInput" class="text-field" placeholder="اترك فاضي للتوليد التلقائي..." />
+              </div>
+
+              <!-- GO Buttons -->
+              <div class="home-action-row">
+                <button type="button" class="btn-produce" id="btnProduce">
+                  🎬 افتح في الاستوديو للتعديل ثم الرندر
+                </button>
+                <button type="button" class="btn-produce-secondary" id="btnProduceInstant" title="تخطي التعديل وبدء الرندر التلقائي مباشرة">
+                  ⚡ مونتاج فوري تلقائي
+                </button>
+              </div>
+
+              <p class="hint-text" id="homeHint">ارفع الفيديو أو الصق رابطاً — يفتح أمامك فوراً للقصّ والتعديل قبل الرندر</p>
+
+              <!-- Recent Downloads 1-Click Radar (Import any video saved from browser/app instantly) -->
+              <div class="recent-dl-card" id="homeRecentDownloads">
+                <div class="recent-dl-head">
+                  <span>📥 أحدث الفيديوهات المحمّلة على جهازك (استيراد بضغطة واحدة)</span>
+                  <button type="button" class="btn btn-sm" id="btnRefreshDownloads">🔄 تحديث</button>
+                </div>
+                <div class="recent-dl-list" id="recentDownloadsList">
+                  <div class="recent-dl-empty">جاري فحص مجلد التنزيلات...</div>
+                </div>
+              </div>
+            </section>
+
+            <!-- VIEW: PROJECTS -->
+            <section class="view-section" id="view-projects">
+              <div class="projects-toolbar">
+                <span class="section-label">مشاريعي</span>
+                <button type="button" class="btn btn-sm" id="btnGoHome">＋ مشروع جديد</button>
+              </div>
+              <div class="projects-grid" id="projectsGrid">
+                <div class="empty-state">
+                  <div class="empty-icon">🎬</div>
+                  <div>لا توجد مشاريع بعد</div>
+                  <div class="empty-sub">ارفع فيديوك من الرئيسية وسيظهر هنا</div>
+                </div>
+              </div>
+            </section>
+
+            <!-- VIEW: BRAND -->
+            <section class="view-section" id="view-brand">
+              <div class="brand-form-wrapper" id="brandFormArea">
+                <div class="form-loading">جاري تحميل إعدادات الهوية...</div>
+              </div>
+            </section>
+
+            <!-- VIEW: POST-PROCESSING EDITOR -->
+            <section class="view-section" id="view-editor">
+              <div class="editor-topbar">
+                <div class="editor-project-meta">
+                  <button type="button" class="btn btn-sm" id="btnEditorBack">→ رجوع لمشاريعي</button>
+                  <span class="editor-proj-name" id="editorProjectTitle">تعديل الفيديو</span>
+                </div>
+                <div class="editor-top-actions">
+                  <button type="button" class="btn btn-sm" id="btnEditorSaveOnly">💾 حفظ فقط</button>
+                  <button type="button" class="btn btn-accent btn-sm" id="btnEditorRerender">⚡ تطبيق التعديلات (رندر سريع)</button>
+                  <button type="button" class="btn btn-danger btn-sm" id="btnEditorDelete" title="حذف المشروع وكل ملفاته من الهارد">🗑️</button>
+                </div>
+              </div>
+
+              <div class="editor-layout">
+                <!-- Right/Controls Column (Clean 3-Tab Studio) -->
+                <div class="editor-controls">
+                  <div class="editor-tabs" id="editorControlTabs">
+                    <button type="button" class="ed-tab-btn active" data-ed-tab="text">📝 النصوص والخطوط</button>
+                    <button type="button" class="ed-tab-btn" data-ed-tab="crop">✂️ الكادر والقصّ</button>
+                    <button type="button" class="ed-tab-btn" data-ed-tab="audio">🎙️ الصوت والمؤثرات</button>
+                  </div>
+
+                  <!-- TAB 1: CROP, ZOOM & TRIM -->
+                  <div class="ed-tab-panel" id="edPanel-crop">
+                    <div class="ed-card">
+                      <div class="ed-card-head">
+                        <div class="ed-card-title">✂️ قصّ الكادر والزوم وقصّ المدة</div>
+                        <div style="display:flex; gap:6px;">
+                          <button type="button" class="btn btn-accent btn-sm" id="btnApplyCropPreview">✅ تطبيق القصّ على المعاينة</button>
+                          <button type="button" class="btn btn-sm" id="btnEdResetCrop">↺ إعادة ضبط</button>
+                        </div>
+                      </div>
+                      <p class="ed-hint">اسحب الحواف الصفراء على الفيديو ثم اضغط <strong>تطبيق القصّ على المعاينة</strong> ليختفي الجزء المقصوص فوراً وتضبط النص واللوجو على المقاس الجديد بدقة 100%.</p>
+                      <div class="form-row">
+                        <div class="form-group">
+                          <label class="form-label" for="edFitMode">مقاس الكادر (9:16)</label>
+                          <select class="form-input" id="edFitMode">
+                            <option value="cover">📱 ملء الشاشة (Fill 9:16)</option>
+                            <option value="blur_bg">🎬 إطار كامل بخلفية مموهة</option>
+                          </select>
+                        </div>
+                        <div class="form-group">
+                          <label class="form-label" for="edCropZoom">زوم الكادر: <span class="ltr" id="edCropZoomVal">1.00×</span></label>
+                          <input type="range" min="1.0" max="2.0" step="0.02" id="edCropZoom" value="1" />
+                        </div>
+                      </div>
+                      <div class="form-row">
+                        <div class="form-group">
+                          <label class="form-label" for="edCropTop">قصّ حقيقي من الأعلى: <span class="ltr" id="edCropTopVal">0%</span></label>
+                          <input type="range" min="0" max="45" step="1" id="edCropTop" value="0" />
+                        </div>
+                        <div class="form-group">
+                          <label class="form-label" for="edCropBottom">قصّ حقيقي من الأسفل: <span class="ltr" id="edCropBottomVal">0%</span></label>
+                          <input type="range" min="0" max="45" step="1" id="edCropBottom" value="0" />
+                        </div>
+                      </div>
+                      <div class="form-row">
+                        <div class="form-group">
+                          <label class="form-label" for="edCropLeft">قصّ حقيقي من اليسار: <span class="ltr" id="edCropLeftVal">0%</span></label>
+                          <input type="range" min="0" max="45" step="1" id="edCropLeft" value="0" />
+                        </div>
+                        <div class="form-group">
+                          <label class="form-label" for="edCropRight">قصّ حقيقي من اليمين: <span class="ltr" id="edCropRightVal">0%</span></label>
+                          <input type="range" min="0" max="45" step="1" id="edCropRight" value="0" />
+                        </div>
+                      </div>
+                      <div class="form-row">
+                        <div class="form-group">
+                          <label class="form-label" for="edCropPanX">إزاحة أفقية: <span class="ltr" id="edCropPanXVal">0%</span></label>
+                          <input type="range" min="-50" max="50" step="1" id="edCropPanX" value="0" />
+                        </div>
+                        <div class="form-group">
+                          <label class="form-label" for="edCropPanY">إزاحة رأسية: <span class="ltr" id="edCropPanYVal">0%</span></label>
+                          <input type="range" min="-50" max="50" step="1" id="edCropPanY" value="0" />
+                        </div>
+                      </div>
+                      <div class="form-row">
+                        <div class="form-group" style="margin-bottom:0;">
+                          <label class="form-label" for="edTrimStart">بداية القصّ (ثانية — 0 من الأول)</label>
+                          <div class="ed-time-row">
+                            <input type="number" min="0" step="0.1" class="form-input ltr" id="edTrimStart" value="0" />
+                            <button type="button" class="btn btn-sm" id="btnEdGrabTrimStart" title="أخذ وقت البداية من الفيديو">📍</button>
+                          </div>
+                        </div>
+                        <div class="form-group" style="margin-bottom:0;">
+                          <label class="form-label" for="edTrimEnd">نهاية القصّ (ثانية — 0 للآخر)</label>
+                          <div class="ed-time-row">
+                            <input type="number" min="0" step="0.1" class="form-input ltr" id="edTrimEnd" value="0" />
+                            <button type="button" class="btn btn-sm" id="btnEdGrabTrimEnd" title="أخذ وقت النهاية من الفيديو">📍</button>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Cut Middle Segments -->
+                      <div class="ed-sfx-box">
+                        <div class="form-label" style="margin-bottom:8px;">✂️ حذف جزء من منتصف الفيديو (اختياري)</div>
+                        <div class="ed-sfx-add-row">
+                          <input type="number" min="0" step="0.1" class="form-input ltr" id="edCutSegStart" placeholder="من ثانية" style="width:92px;" />
+                          <button type="button" class="btn btn-sm" id="btnEdGrabCutStart" title="أخذ وقت البداية من المشغل">📍</button>
+                          <span style="font-size:12px; color:var(--text-dim);">إلى</span>
+                          <input type="number" min="0" step="0.1" class="form-input ltr" id="edCutSegEnd" placeholder="إلى ثانية" style="width:92px;" />
+                          <button type="button" class="btn btn-sm" id="btnEdGrabCutEnd" title="أخذ وقت النهاية من المشغل">📍</button>
+                          <button type="button" class="btn btn-sm" id="btnEdAddCutSeg">＋ حذف الجزء</button>
+                        </div>
+                        <div class="ov-chips" id="edCutSegList" style="margin-top:8px; margin-bottom:0;"></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- TAB 2: TEXTS, ARABIC FONTS & MEDIA OVERLAYS -->
+                  <div class="ed-tab-panel active" id="edPanel-text">
+                    <!-- Card 1: Title, CTA & Global Arabic Font -->
+                    <div class="ed-card">
+                      <div class="ed-card-title">1. العنوان والخاتمة والخط العربي العام</div>
+                      <div class="form-row">
+                        <div class="form-group">
+                          <label class="form-label" for="edHookTitle">عنوان الهوك (أول 3 ثواني + الغلاف)</label>
+                          <input type="text" class="form-input" id="edHookTitle" placeholder="اكتب عنواناً جذاباً..." />
+                        </div>
+                        <div class="form-group">
+                          <label class="form-label" for="edArabicFont">الخط العربي للفيديو والترجمة</label>
+                          <select class="form-input" id="edArabicFont">
+                            <option value="cairo">Cairo — كايرو (عصري وقوي)</option>
+                            <option value="tajawal">Tajawal — تجوّل (ناعم وأنيق)</option>
+                            <option value="amiri">Amiri — أميري (تراثي وكلاسيكي فخم)</option>
+                            <option value="changa">Changa — شانجا (عريض للريلز)</option>
+                            <option value="reemkufi">Reem Kufi — ريم كوفي (كوفي فني)</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div class="form-row">
+                        <div class="form-group" style="margin-bottom:0;">
+                          <label class="form-label" for="edCtaText">جملة الخاتمة (CTA)</label>
+                          <input type="text" class="form-input" id="edCtaText" placeholder="تابعني ومش هتندم" />
+                        </div>
+                        <div class="form-group" style="justify-content: flex-end; margin-bottom:0;">
+                          <label class="ed-toggle">
+                            <input type="checkbox" id="edShowHookCard" />
+                            <span>إظهار كارت العنوان أعلى الفيديو</span>
+                          </label>
+                        </div>
+                      </div>
+                      <div class="form-group" style="margin-top:10px; margin-bottom:0;">
+                        <label class="ed-toggle">
+                          <input type="checkbox" id="edShowCaptions" checked />
+                          <span>💬 إظهار الترجمة التلقائية (أغلقه لو الفيديو به كتابة أصلية أو دوشة شارع)</span>
+                        </label>
+                      </div>
+                      <div class="form-group" style="margin-top:10px; margin-bottom:0;">
+                        <label class="ed-toggle">
+                          <input type="checkbox" id="edSalawatOutro" />
+                          <span>🌙 إظهار خاتمة «إذا وصلت لنهاية الفيديو صلِّ على النبي ﷺ» بشكل مميز بدل جملة النهاية</span>
+                        </label>
+                      </div>
+                    </div>
+
+                    <!-- Card 2: Overlays (Add Text / Hide & Replace / Image / Video) -->
+                    <div class="ed-card">
+                      <div class="ed-card-head">
+                        <div class="ed-card-title">2. إخفاء كلام أو إضافة نصوص وصور</div>
+                        <button type="button" class="btn btn-accent btn-sm" id="btnDrawOverlay">✏️ رسم مربع على الفيديو</button>
+                      </div>
+                      <div class="ed-quick-btns">
+                        <button type="button" class="btn btn-sm" id="btnQuickBottomText">＋ نص / تغطية سفلية</button>
+                        <button type="button" class="btn btn-sm" id="btnQuickTopText">＋ نص / تغطية علوية</button>
+                        <button type="button" class="btn btn-sm" id="btnQuickDelogo">＋ مسح لوجو</button>
+                        <button type="button" class="btn btn-sm" id="btnQuickAddImage">🖼️ صورة</button>
+                        <button type="button" class="btn btn-sm" id="btnQuickAddVideo">🎞️ فيديو</button>
+                        <input type="file" id="edMediaImageInput" accept="image/*" hidden />
+                        <input type="file" id="edMediaVideoInput" accept="video/*" hidden />
+                      </div>
+
+                      <div class="ov-chips" id="edOverlaysList"></div>
+
+                      <div class="ov-inspector" id="edOverlayInspector" style="display:none;">
+                        <div class="form-row">
+                          <div class="form-group">
+                            <label class="form-label" for="edOvMode">الوظيفة</label>
+                            <select class="form-input" id="edOvMode">
+                              <option value="replace">إخفاء وكتابة نص جديد (Replace)</option>
+                              <option value="blur">تغبيش ناعم (Blur)</option>
+                              <option value="delogo">مسح لوجو ذكي (Delogo)</option>
+                              <option value="image">صورة فوق الفيديو</option>
+                              <option value="video">فيديو فوق الفيديو (PiP)</option>
+                            </select>
+                          </div>
+                          <div class="form-group" id="edOvStyleGroup">
+                            <label class="form-label" for="edOvCardStyle">شكل الخلفية</label>
+                            <select class="form-input" id="edOvCardStyle">
+                              <option value="solid_dark">داكن صلب بإطار ذهبي (إخفاء 100%)</option>
+                              <option value="glass_gold">زجاجي فاخر بتوهج ذهبي</option>
+                              <option value="cinema_bar">شريط سينمائي عريض</option>
+                              <option value="accent_pill">شارة ذهبية بارزة</option>
+                            </select>
+                          </div>
+                        </div>
+
+                        <div class="form-group" id="edOvTextGroup">
+                          <label class="form-label" for="edOvText">النص (اضغط Enter للنزول لسطر جديد)</label>
+                          <textarea class="form-input" id="edOvText" rows="3" placeholder="اكتب النص هنا...&#10;ويمكنك النزول لسطر جديد بـ Enter"></textarea>
+                        </div>
+
+                        <div class="form-row" id="edOvFontRow">
+                          <div class="form-group">
+                            <label class="form-label" for="edOvFontFamily">شكل الخط العربي</label>
+                            <select class="form-input" id="edOvFontFamily">
+                              <option value="cairo">Cairo — كايرو</option>
+                              <option value="tajawal">Tajawal — تجوّل</option>
+                              <option value="amiri">Amiri — أميري (تراثي)</option>
+                              <option value="changa">Changa — شانجا (عريض)</option>
+                              <option value="reemkufi">Reem Kufi — كوفي فني</option>
+                            </select>
+                          </div>
+                          <div class="form-group">
+                            <label class="form-label" for="edOvFontSize">حجم الخط: <span class="ltr" id="edOvFontSizeVal">46px</span></label>
+                            <input type="range" min="20" max="130" step="2" id="edOvFontSize" value="46" />
+                          </div>
+                        </div>
+
+                        <div class="form-row" id="edOvColorRow">
+                          <div class="form-group">
+                            <label class="form-label" for="edOvTextColor">لون النص</label>
+                            <div class="ed-color-row">
+                              <input type="color" id="edOvTextColor" value="#FFFFFF" />
+                              <span class="ltr" id="edOvTextColorHex">#FFFFFF</span>
+                            </div>
+                          </div>
+                          <div class="form-group" style="justify-content:flex-end;">
+                            <button type="button" class="btn btn-danger btn-sm" id="btnEdDeleteOv">🗑️ حذف هذا العنصر</button>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="form-row">
+                        <div class="form-group">
+                          <label class="form-label" for="edOvStart">يبدأ عند (ثانية)</label>
+                          <div class="ed-time-row">
+                            <input type="number" min="0" step="0.1" class="form-input ltr" id="edOvStart" />
+                            <button type="button" class="btn btn-sm" id="btnEdGrabStart" title="أخذ الوقت الحالي من الفيديو">📍</button>
+                          </div>
+                        </div>
+                        <div class="form-group">
+                          <label class="form-label" for="edOvEnd">ينتهي عند (0 = طوال الفيديو)</label>
+                          <div class="ed-time-row">
+                            <input type="number" min="0" step="0.1" class="form-input ltr" id="edOvEnd" />
+                            <button type="button" class="btn btn-sm" id="btnEdGrabEnd" title="أخذ الوقت الحالي من الفيديو">📍</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- TAB 3: AUDIO, AI TTS & SFX -->
+                  <div class="ed-tab-panel" id="edPanel-audio">
+                    <div class="ed-card">
+                      <div class="ed-card-title">🎙️ الصوت والتعليق والمؤثرات (اختياري)</div>
+
+                    <div class="audio-mode-tabs" id="edAudioSourceTabs">
+                      <button type="button" class="audio-tab active" data-source="original">🎙️ الصوت الأصلي</button>
+                      <button type="button" class="audio-tab" data-source="custom">📤 رفع صوت خارجي</button>
+                      <button type="button" class="audio-tab" data-source="tts">🤖 توليد كلام بالذكاء الاصطناعي</button>
+                    </div>
+
+                    <!-- Option A: Upload Custom Voice -->
+                    <div class="audio-subpanel" id="edAudioCustomPanel" style="display:none;">
+                      <div class="ed-voice-upload-row">
+                        <input type="file" id="edVoiceFileInput" accept="audio/*" hidden />
+                        <button type="button" class="btn btn-sm" id="btnEdPickVoice">📁 اختر ملف صوت (MP3 / WAV)</button>
+                        <span class="ed-hint" id="edVoiceFileStatus" style="margin:0;">لم يتم رفع صوت بعد</span>
+                      </div>
+                      <audio id="edCustomVoicePreview" controls style="width:100%; margin-top:8px; display:none;"></audio>
+                    </div>
+
+                    <!-- Option B: AI Arabic TTS -->
+                    <div class="audio-subpanel" id="edAudioTtsPanel" style="display:none;">
+                      <div class="form-group">
+                        <label class="form-label" for="edTtsText">النص المطلوب نطقه (يُضبط التشكيل والوقفات تلقائياً — ويمكنك إضافة تشكيل لأي كلمة صعبة)</label>
+                        <textarea class="form-input" id="edTtsText" rows="3" placeholder="اكتب الكلام هنا... مثال: أهلاً بكم في حكاية جديدة من الزمن الجميل، تابعونا للنهاية!"></textarea>
+                      </div>
+                      <div class="form-row">
+                        <div class="form-group">
+                          <label class="form-label" for="edTtsVoice">الصوت</label>
+                          <select class="form-input" id="edTtsVoice">
+                            <option value="salma">سلمى — مصري أنثى (طبيعي)</option>
+                            <option value="shakir">شاكر — مصري ذكوري (طبيعي)</option>
+                            <option value="zariyah">زارية — عربي فصحى أنثى</option>
+                            <option value="hamed">حامد — عربي فصحى ذكوري</option>
+                          </select>
+                        </div>
+                        <div class="form-group">
+                          <label class="form-label" for="edTtsRate">سرعة النطق</label>
+                          <select class="form-input ltr" id="edTtsRate">
+                            <option value="-10%">أبطأ (-10%)</option>
+                            <option value="+0%" selected>طبيعي (0%)</option>
+                            <option value="+10%">أسرع (+10%)</option>
+                            <option value="+20%">سريع (+20%)</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div class="ed-tts-actions">
+                        <button type="button" class="btn btn-accent btn-sm" id="btnEdGenerateTts">🎙️ توليد ومعالجة النطق الآن</button>
+                        <label class="ed-toggle" style="padding:6px 10px;">
+                          <input type="checkbox" id="edTtsUpdateCaptions" checked />
+                          <span>مزامنة الترجمة مع الكلام المولّد</span>
+                        </label>
+                      </div>
+                      <audio id="edTtsPreview" controls style="width:100%; margin-top:10px; display:none;"></audio>
+                    </div>
+
+                    <!-- Common Voice Processing & Mute Controls -->
+                    <div class="form-row" style="margin-top:12px;">
+                      <div class="form-group">
+                        <label class="form-label" for="edVoicePreset">معالجة ومؤثرات الصوت</label>
+                        <select class="form-input" id="edVoicePreset">
+                          <option value="studio">استوديو نقي (الافتراضي)</option>
+                          <option value="podcast">بودكاست عميق وفخم</option>
+                          <option value="heritage_reverb">صدى تراثي خفيف (للشعر والغناوي)</option>
+                          <option value="cinema">سينمائي دافي</option>
+                          <option value="raw">بدون فلاتر</option>
+                        </select>
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label" for="edDenoise">إزالة الضوضاء</label>
+                        <select class="form-input" id="edDenoise">
+                          <option value="light">خفيف</option>
+                          <option value="medium">متوسط</option>
+                          <option value="strong">قوي</option>
+                          <option value="off">مغلق</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label class="ed-toggle">
+                        <input type="checkbox" id="edMuteOriginal" />
+                        <span>🔇 كتم الصوت الأصلي للفيديو (مثالي مع الصوت المرفوع أو المولّد)</span>
+                      </label>
+                    </div>
+
+                    <!-- Option C: Timed SFX -->
+                    <div class="ed-sfx-box">
+                      <div class="form-label" style="margin-bottom:8px;">مؤثرات صوتية في توقيت محدد (SFX)</div>
+                      <div class="ed-sfx-add-row">
+                        <select class="form-input" id="edSfxFile">
+                          <option value="whoosh.wav">Whoosh — انتقال سريع</option>
+                          <option value="pop.wav">Pop — ظهور نص/كارت</option>
+                          <option value="riser.wav">Riser — تشويق</option>
+                          <option value="chime.wav">Chime — رنة تنبيه</option>
+                          <option value="click.wav">Click — نقرة</option>
+                        </select>
+                        <input type="number" min="0" step="0.1" class="form-input ltr" id="edSfxTime" value="0" style="width:90px;" title="الثانية" />
+                        <button type="button" class="btn btn-sm" id="btnEdGrabSfxTime" title="أخذ الوقت الحالي من الفيديو">📍</button>
+                        <button type="button" class="btn btn-sm" id="btnEdAddSfx">＋ إضافة</button>
+                      </div>
+                      <div class="ov-chips" id="edSfxList" style="margin-top:8px; margin-bottom:0;"></div>
+                    </div>
+                  </div>
+                  </div>
+                </div>
+
+                <!-- Left/Preview Column (Clean Canvas — Show Guides Only On Demand) -->
+                <div class="editor-preview-col">
+                  <div class="guide-toggle-bar" id="edPreviewSrcBar">
+                    <button type="button" class="guide-pill active" data-preview-src="raw">📹 الخام (للقصّ)</button>
+                    <button type="button" class="guide-pill" data-preview-src="cropped" id="btnPreviewCropped" style="display:none;">✂️ المقصوص (للموازنة)</button>
+                    <button type="button" class="guide-pill" data-preview-src="output" id="btnPreviewOutput">✨ النتيجة النهائية</button>
+                  </div>
+                  <div class="guide-toggle-bar" id="edGuideToggleBar" title="اضغط على أي عنصر لإظهاره وتحريكه على الشاشة">
+                    <span style="font-size:11px; color:var(--text-dim);">تحريك على الشاشة:</span>
+                    <button type="button" class="guide-pill" data-guide="wm">🏷️ اللوجو</button>
+                    <button type="button" class="guide-pill" data-guide="hook">📌 العنوان</button>
+                    <button type="button" class="guide-pill" data-guide="cap">💬 الترجمة</button>
+                    <button type="button" class="guide-pill" data-guide="cta">🎯 الخاتمة</button>
+                  </div>
+                  <div class="phone-quick-bar">
+                    <button type="button" class="btn btn-accent btn-sm" id="btnScreenDraw">✏️ نص / تغطية</button>
+                    <button type="button" class="btn btn-sm" id="btnScreenImage">🖼️ صورة</button>
+                    <button type="button" class="btn btn-sm" id="btnScreenVideo">🎞️ فيديو</button>
+                    <button type="button" class="btn btn-sm" id="btnResetPositions" title="إعادة ضبط الأماكن">↺</button>
+                  </div>
+                  <div class="phone-stage-wrap">
+                    <div class="phone-frame" id="edPhoneFrame">
+                      <video id="edVideoPlayer" controls playsinline></video>
+                      <div class="crop-mask-layer" id="edCropMaskLayer" style="display:none;">
+                        <div class="crop-shade" id="cropShadeTop"></div>
+                        <div class="crop-shade" id="cropShadeBottom"></div>
+                        <div class="crop-shade" id="cropShadeLeft"></div>
+                        <div class="crop-shade" id="cropShadeRight"></div>
+                        <div class="crop-rect-box" id="edCropRect">
+                          <span class="crop-handle crop-h-top" data-crop-edge="top" title="اسحب لقصّ الأعلى"></span>
+                          <span class="crop-handle crop-h-bottom" data-crop-edge="bottom" title="اسحب لقصّ الأسفل"></span>
+                          <span class="crop-handle crop-h-left" data-crop-edge="left" title="اسحب لقصّ اليسار"></span>
+                          <span class="crop-handle crop-h-right" data-crop-edge="right" title="اسحب لقصّ اليمين"></span>
+                        </div>
+                      </div>
+                      <div class="overlay-canvas" id="edOverlayCanvas"></div>
+                    </div>
+                  </div>
+
+                  <!-- CapCut-style Visual Timeline Bar -->
+                  <div class="timeline-wrap" id="edTimelineWrap">
+                    <div class="timeline-head">
+                      <span class="ltr" id="edTlTimeText">00:00.0 / 00:00.0</span>
+                      <div class="tl-mini-actions">
+                        <button type="button" class="guide-pill" id="btnTlCutMode" title="اسحب على الشريط لتحديد جزء وحذفه مثل CapCut">✂️ تحديد جزء للحذف</button>
+                        <button type="button" class="guide-pill" id="btnTlSetStart" title="اجعل بداية الفيديو من اللحظة الحالية">[ بداية</button>
+                        <button type="button" class="guide-pill" id="btnTlSetEnd" title="اجعل نهاية الفيديو عند اللحظة الحالية">نهاية ]</button>
+                      </div>
+                    </div>
+                    <div class="timeline-bar" id="edTimelineBar" title="اضغط للتنقل · أو فعّل وضع التحديد واسحب لحذف جزء">
+                      <div class="tl-trim-shade tl-trim-left" id="edTlTrimLeft"></div>
+                      <div class="tl-trim-shade tl-trim-right" id="edTlTrimRight"></div>
+                      <div class="tl-cuts-layer" id="edTlCutsLayer"></div>
+                      <div class="tl-drag-sel" id="edTlDragSel" style="display:none;"></div>
+                      <div class="tl-playhead" id="edTlPlayhead"></div>
+                    </div>
+                  </div>
+
+                  <div class="ed-preview-note">اسحب الحواف الصفراء لقصّ الفيديو فعلياً · أو اسحب على الشريط الزمني لحذف أي جزء</div>
+                </div>
+              </div>
+            </section>
+
+          </div><!-- /content-inner -->
+        </div><!-- /content-scroll -->
+      </main>
+    </div><!-- /app-shell -->
+
+    <!-- Progress Modal -->
+    <div class="modal-overlay" id="progressModal" style="display:none;">
+      <div class="modal-box">
+        <div class="modal-head">
+          <span class="modal-title" id="modalTitle">🎬 جاري المونتاج...</span>
+          <button type="button" class="modal-close" id="btnModalClose" title="إغلاق">✕</button>
+        </div>
+        <div class="progress-wrap" id="progressWrap">
+          <div class="progress-bar-track">
+            <div class="progress-bar-fill" id="progressFill" style="width:0%"></div>
+          </div>
+          <span class="progress-pct" id="progressPct">0%</span>
+        </div>
+        <div class="progress-stage" id="progressStage">تهيئة...</div>
+
+        <!-- Video Preview Container (Appears when video is done) -->
+        <div class="modal-preview-wrap" id="modalPreviewWrap" style="display:none;">
+          <video id="modalVideoPlayer" controls playsinline></video>
+        </div>
+
+        <div class="console-log" id="consoleLog"></div>
+        <div class="modal-actions" id="modalActions" style="display:none;">
+          <a class="btn btn-accent" id="btnDownload" download>⬇️ تحميل الفيديو النهائي (MP4)</a>
+          <button type="button" class="btn" id="btnModalEdit">✏️ تعديل وإضافة نصوص</button>
+          <button type="button" class="btn" id="btnModalOpenFolder">📂 فتح المجلد</button>
+          <button type="button" class="btn" id="btnViewProject">مشاريعي</button>
+        </div>
+        <div class="modal-actions" id="modalErrorActions" style="display:none;">
+          <button type="button" class="btn btn-accent" id="btnModalGoAuth">⚙️ إعداد مصادقة الروابط (الهوية)</button>
+          <button type="button" class="btn" id="btnModalPickLocal">📂 اختر فيديو من جهازك</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script src="/app.js"></script>
+  </body>
+</html>
