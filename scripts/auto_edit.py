@@ -550,6 +550,7 @@ def _gtx_translate(text: str, sl: str, tl: str) -> str:
     raise last or RuntimeError("translate failed")
 
 
+ENGLISH_OVERRIDE: Any = None  # per-run pinned English: dict {arabic caption text: english} or list aligned to caption order
 ENGLISH_FIXES: dict[str, str] = {}  # per-run English replacements (settings_json: englishFixes), applied after translation
 
 
@@ -559,6 +560,25 @@ def populate_bilingual_captions(captions: list[dict[str, Any]], src_lang: str = 
         return
     sl = "en" if str(src_lang).lower().startswith("en") else "ar"
     tl = "ar" if sl == "en" else "en"
+    if sl == "ar" and ENGLISH_OVERRIDE:
+        _norm = lambda t: " ".join(str(t or "").split())  # noqa: E731
+        _used = 0
+        if isinstance(ENGLISH_OVERRIDE, dict):
+            _map = {_norm(k): str(v).strip() for k, v in ENGLISH_OVERRIDE.items() if str(v).strip()}
+            for ch in captions:
+                _v = _map.get(_norm(ch.get("text")))
+                if _v and not (ch.get("en_text") or "").strip():
+                    ch["en_text"] = _v
+                    _used += 1
+            _total = len(_map)
+        else:
+            _lst = [str(v or "").strip() for v in ENGLISH_OVERRIDE]
+            for i, ch in enumerate(captions):
+                if i < len(_lst) and _lst[i] and not (ch.get("en_text") or "").strip():
+                    ch["en_text"] = _lst[i]
+                    _used += 1
+            _total = len(_lst)
+        print(f"🔒 englishOverride: pinned English for {_used} of {len(captions)} captions ({_total} entries supplied).", flush=True)
     missing = [ch for ch in captions if (ch.get("text") or "").strip() and not (ch.get("en_text") or "").strip()]
     if not missing:
         return
@@ -826,6 +846,8 @@ def main() -> None:
         settings = {}
     global ENGLISH_FIXES
     ENGLISH_FIXES = {str(k): str(v) for k, v in (settings.get("englishFixes") or {}).items() if str(k).strip()}
+    global ENGLISH_OVERRIDE
+    ENGLISH_OVERRIDE = settings.get("englishOverride") or None
     effective_brand = build_hyperframes.resolve_brand_profile(brand, settings)
 
     input_mp4 = os.path.join(project_dir, "input.mp4")
