@@ -221,6 +221,23 @@ def build_project(
 
     # Use a content-fingerprinted filename so HyperFrames extract-cache NEVER reuses stale uncropped frames
     h = hashlib.sha1()
+    main_fit = "cover"
+    try:
+        _pr = subprocess.run(["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries", "stream=width,height:stream_side_data=rotation", "-of", "json", video_src_path], capture_output=True, text=True)
+        _st = (json.loads(_pr.stdout or "{}").get("streams") or [{}])[0]
+        _w, _h = int(_st.get("width", 0)), int(_st.get("height", 0))
+        _rot = 0
+        for _sd in _st.get("side_data_list", []) or []:
+            if "rotation" in _sd:
+                _rot = abs(int(float(_sd["rotation"]))) % 180
+        if _rot == 90:
+            _w, _h = _h, _w
+        # Horizontal sources are letterboxed into 9:16 (never center-cropped) unless letterboxHorizontal is set false
+        if _w and _h and _w / _h > 1.2 and settings.get("letterboxHorizontal", True) is not False:
+            main_fit = "contain"
+        print(f"main video {_w}x{_h} -> object-fit {main_fit}", flush=True)
+    except Exception as _e:
+        print(f"fit probe failed: {_e}", flush=True)
     st_v = os.stat(video_src_path)
     h.update(f"{st_v.st_size}:{st_v.st_mtime_ns}".encode("utf-8"))
     with open(video_src_path, "rb") as vf:
@@ -867,7 +884,7 @@ def build_project(
       inset: 0;
       width: 100%;
       height: 100%;
-      object-fit: cover;
+      object-fit: {main_fit};
     }}
 
     .cinema-vignette {{

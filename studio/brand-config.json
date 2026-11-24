@@ -104,7 +104,8 @@
     { "wrong": "ذكاء اصطناعي", "right": "الذكاء الاصطناعي" },
     { "wrong": "كاب كات", "right": "CapCut" },
     { "wrong": "بريمير", "right": "Premiere" },
-    { "wrong": "دخيرة", "right": "ذخيرة" }
+    { "wrong": "دخيرة", "right": "ذخيرة" },
+    { "wrong": "يصاف", "right": "مصاف" }
   ]
 }
 
