@@ -51,6 +51,24 @@
         "surface": "#0E0C12",
         "surfaceOpacity": 0.84
       }
+    },
+    {
+      "id": "dawlat_tilawa",
+      "label": "دولة التلاوة",
+      "icon": "📖",
+      "accountName": "دولة التلاوة",
+      "niche": "تلاوات قرآنية وقراء",
+      "dialectLabel": "عربي فصيح",
+      "cta": "تابعني ومش هتندم",
+      "logoFile": "logo-dawlat-altilawa.png",
+      "hashtags": "#دولة_التلاوة #تلاوة #قرآن_كريم #قرآن #Reels #TikTok #Shorts",
+      "colors": {
+        "primary": "#FFFFFF",
+        "accent": "#F6C443",
+        "secondary": "#16A34A",
+        "surface": "#07120E",
+        "surfaceOpacity": 0.84
+      }
     }
   ],
   "fonts": {
@@ -92,21 +110,65 @@
     "sides": 108
   },
   "glossary": [
-    { "wrong": "أنتي جرافيتي", "right": "Antigravity" },
-    { "wrong": "انتي جرافيتي", "right": "Antigravity" },
-    { "wrong": "هايبر فريمز", "right": "HyperFrames" },
-    { "wrong": "هايبرفريمز", "right": "HyperFrames" },
-    { "wrong": "شات جي بي تي", "right": "ChatGPT" },
-    { "wrong": "جيميناي", "right": "Gemini" },
-    { "wrong": "ريلز", "right": "Reels" },
-    { "wrong": "تيك توك", "right": "TikTok" },
-    { "wrong": "شورتس", "right": "Shorts" },
-    { "wrong": "ذكاء اصطناعي", "right": "الذكاء الاصطناعي" },
-    { "wrong": "كاب كات", "right": "CapCut" },
-    { "wrong": "بريمير", "right": "Premiere" },
-    { "wrong": "دخيرة", "right": "ذخيرة" },
-    { "wrong": "يصاف", "right": "مصاف" },
-    { "wrong": "بصاف", "right": "مصاف" }
+    {
+      "wrong": "أنتي جرافيتي",
+      "right": "Antigravity"
+    },
+    {
+      "wrong": "انتي جرافيتي",
+      "right": "Antigravity"
+    },
+    {
+      "wrong": "هايبر فريمز",
+      "right": "HyperFrames"
+    },
+    {
+      "wrong": "هايبرفريمز",
+      "right": "HyperFrames"
+    },
+    {
+      "wrong": "شات جي بي تي",
+      "right": "ChatGPT"
+    },
+    {
+      "wrong": "جيميناي",
+      "right": "Gemini"
+    },
+    {
+      "wrong": "ريلز",
+      "right": "Reels"
+    },
+    {
+      "wrong": "تيك توك",
+      "right": "TikTok"
+    },
+    {
+      "wrong": "شورتس",
+      "right": "Shorts"
+    },
+    {
+      "wrong": "ذكاء اصطناعي",
+      "right": "الذكاء الاصطناعي"
+    },
+    {
+      "wrong": "كاب كات",
+      "right": "CapCut"
+    },
+    {
+      "wrong": "بريمير",
+      "right": "Premiere"
+    },
+    {
+      "wrong": "دخيرة",
+      "right": "ذخيرة"
+    },
+    {
+      "wrong": "يصاف",
+      "right": "مصاف"
+    },
+    {
+      "wrong": "بصاف",
+      "right": "مصاف"
+    }
   ]
 }
-
