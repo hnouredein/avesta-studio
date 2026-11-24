@@ -463,8 +463,14 @@ def transcribe_with_hyperframes(video_path: str, work_dir: str, model: str, lang
     ]
     print(f"🗣️ تشغيل Whisper محلياً (model={model}, lang={lang})...", flush=True)
     res = run_cmd(cmd, cwd=work_dir, capture=True)
+    for _attempt in (2, 3):
+        if res.returncode == 0:
+            break
+        print(f"⚠️ Whisper فشل (rc={res.returncode}) stderr_tail={res.stderr[-600:]!r} stdout_tail={(res.stdout or '')[-600:]!r} — إعادة المحاولة {_attempt}/3", flush=True)
+        time.sleep(4)
+        res = run_cmd(cmd, cwd=work_dir, capture=True)
     if res.returncode != 0:
-        print(f"⚠️ تعذّر التفريغ الصوتي التلقائي (سيستمر المونتاج بدون ترجمة تلقائية): {res.stderr[:260]}", flush=True)
+        print(f"⚠️ تعذّر التفريغ الصوتي التلقائي (سيستمر المونتاج بدون ترجمة تلقائية): {res.stderr[-260:]}", flush=True)
         return []
 
     raw_out = (res.stdout or "").strip()
