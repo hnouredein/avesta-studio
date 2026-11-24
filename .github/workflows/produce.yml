@@ -50,7 +50,7 @@ on:
           - drive
 
 concurrency:
-  group: produce-video-dev
+  group: produce-video
   cancel-in-progress: false
 
 jobs:
