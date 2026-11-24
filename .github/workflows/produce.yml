@@ -1,0 +1,180 @@
+name: Produce video
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_url:
+        description: "Source video URL (TikTok / direct MP4 / etc.)"
+        required: true
+      title:
+        description: "Video title (Arabic), optional"
+        required: false
+        default: ""
+      hook_title:
+        description: "Short hook text, optional"
+        required: false
+        default: ""
+      language:
+        description: "Spoken language of the source"
+        required: true
+        default: "en"
+        type: choice
+        options:
+          - en
+          - ar
+      whisper_model:
+        description: "Whisper model"
+        required: true
+        default: "medium"
+        type: choice
+        options:
+          - medium
+          - small
+
+concurrency:
+  group: produce-video
+  cancel-in-progress: false
+
+jobs:
+  produce:
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    env:
+      JOB: videos/job-${{ github.run_number }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: System dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg fonts-noto fonts-noto-extra cmake build-essential
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Python dependencies
+        run: pip install -r requirements.txt "curl_cffi==0.13.0"
+
+      - name: Install deno (yt-dlp TikTok signature solving)
+        run: |
+          curl -fsSL https://deno.land/install.sh | sh -s -- -y
+          echo "$HOME/.deno/bin" >> "$GITHUB_PATH"
+
+      - name: Cache hyperframes runtime (whisper build, models, npm, chrome)
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/hyperframes
+            ~/.npm/_npx
+          key: hf-${{ runner.os }}-v2
+
+      - name: Build whisper.cpp (pinned v1.9.5)
+        run: |
+          set -e
+          WD="$HOME/.cache/hyperframes/whisper/whisper.cpp"
+          if [ ! -x "$WD/build/bin/whisper-cli" ]; then
+            rm -rf "$WD"
+            mkdir -p "$(dirname "$WD")"
+            git clone --depth 1 --branch v1.9.5 https://github.com/ggml-org/whisper.cpp.git "$WD"
+            cmake -S "$WD" -B "$WD/build"
+            cmake --build "$WD/build" --config Release -j4
+          fi
+          ls -la "$WD/build/bin/whisper-cli"
+
+      - name: Download whisper models
+        run: |
+          set -e
+          MD="$HOME/.cache/hyperframes/whisper/models"
+          mkdir -p "$MD"
+          REV=5359861c739e955e79d9a303bcbc70fb988958b1
+          for m in small medium; do
+            f="$MD/ggml-$m.bin"
+            if [ ! -s "$f" ]; then
+              curl -fL --retry 3 -o "$f" "https://huggingface.co/ggerganov/whisper.cpp/resolve/$REV/ggml-$m.bin"
+            fi
+            ls -la "$f"
+          done
+
+      - name: Warm hyperframes npm cache
+        run: npx -y hyperframes@latest --help
+
+      - name: Download source video
+        env:
+          SOURCE_URL: ${{ inputs.source_url }}
+        run: |
+          mkdir -p "$JOB"
+          python3 scripts/download_url.py "$SOURCE_URL" "$JOB/input.mp4"
+          test -s "$JOB/input.mp4"
+          ls -la "$JOB/input.mp4"
+
+      - name: Write settings.json
+        env:
+          TITLE: ${{ inputs.title }}
+          HOOK: ${{ inputs.hook_title }}
+          LANG: ${{ inputs.language }}
+          WMODEL: ${{ inputs.whisper_model }}
+        run: |
+          python3 - <<'PY'
+          import json, os
+          s = {
+              "title": os.environ.get("TITLE") or "فيديو غناوي",
+              "hookTitle": os.environ.get("HOOK") or "",
+              "language": os.environ.get("LANG", "en"),
+              "whisperEnabled": True,
+              "whisperModel": os.environ.get("WMODEL", "medium"),
+              "autoSmartCrop": False,
+              "verticalCrop": False,
+              "teaserHookEnabled": False,
+              "bilingualCaptions": True,
+              "overlays": [{"mode": "delogo", "x": 0, "y": 1, "w": 100, "h": 9, "start": 0, "end": 0}],
+          }
+          with open(os.path.join(os.environ["JOB"], "settings.json"), "w", encoding="utf-8") as f:
+              json.dump(s, f, ensure_ascii=False, indent=2)
+          PY
+          cat "$JOB/settings.json"
+
+      - name: Run pipeline (6 stages)
+        run: python3 scripts/auto_edit.py "$JOB" --mode full
+
+      - name: Re-encode if over 25 MB and upload to Drive (private)
+        env:
+          GDRIVE_SA_JSON: ${{ secrets.GDRIVE_SA_JSON }}
+          DRIVE_FOLDER_ID: ${{ secrets.DRIVE_FOLDER_ID }}
+          RUN: ${{ github.run_number }}
+        run: |
+          set -e
+          curl -fsSL https://rclone.org/install.sh | sudo bash
+          printf '%s' "$GDRIVE_SA_JSON" > /tmp/sa.json
+          chmod 600 /tmp/sa.json
+          export RCLONE_CONFIG_DRV_TYPE=drive
+          export RCLONE_CONFIG_DRV_SCOPE=drive
+          export RCLONE_CONFIG_DRV_SERVICE_ACCOUNT_FILE=/tmp/sa.json
+          export RCLONE_CONFIG_DRV_ROOT_FOLDER_ID="$DRIVE_FOLDER_ID"
+          DEST="drv:avesta/$(date +%F)-job${RUN}"
+          OUT="$JOB/output.mp4"
+          FINAL="$OUT"
+          SZ=$(stat -c%s "$OUT")
+          if [ "$SZ" -gt 26214400 ]; then
+            echo "output.mp4 is $SZ bytes, re-encoding under 25 MB"
+            ffmpeg -y -i "$OUT" -c:v libx264 -crf 30 -preset medium -c:a aac -b:a 96k -movflags +faststart "$JOB/output_25mb.mp4"
+            SZ2=$(stat -c%s "$JOB/output_25mb.mp4")
+            if [ "$SZ2" -gt 26214400 ]; then
+              ffmpeg -y -i "$OUT" -c:v libx264 -crf 34 -preset medium -vf scale=720:-2 -c:a aac -b:a 80k -movflags +faststart "$JOB/output_25mb.mp4"
+            fi
+            FINAL="$JOB/output_25mb.mp4"
+          fi
+          cp "$FINAL" "$JOB/final.mp4"
+          rclone copy "$JOB/final.mp4" "$DEST" --stats-one-line
+          if [ -f "$JOB/cover.png" ]; then rclone copy "$JOB/cover.png" "$DEST"; fi
+          if [ -f "$JOB/post.txt" ]; then rclone copy "$JOB/post.txt" "$DEST"; fi
+          shred -u /tmp/sa.json
+          rclone lsl "$DEST"
+
+      - name: Prune work dir
+        if: always()
+        run: rm -rf "$JOB/work"
