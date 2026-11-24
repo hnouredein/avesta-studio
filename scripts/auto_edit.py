@@ -550,6 +550,9 @@ def _gtx_translate(text: str, sl: str, tl: str) -> str:
     raise last or RuntimeError("translate failed")
 
 
+ENGLISH_FIXES: dict[str, str] = {}  # per-run English replacements (settings_json: englishFixes), applied after translation
+
+
 def populate_bilingual_captions(captions: list[dict[str, Any]], src_lang: str = "ar") -> None:
     """Translate captions to English (or Arabic if source is English) for bilingual subtitles."""
     if not captions:
@@ -589,6 +592,8 @@ def populate_bilingual_captions(captions: list[dict[str, Any]], src_lang: str = 
                 if tr:
                     ch["text"] = tr
             else:
+                for _a, _b in ENGLISH_FIXES.items():
+                    tr = tr.replace(_a, _b)
                 ch["en_text"] = tr
             if not (ch.get("en_text") or "").strip() and sl != "en":
                 print("   (no English translation for caption: " + orig[:30] + ")", flush=True)
@@ -819,6 +824,8 @@ def main() -> None:
             settings = json.load(f)
     else:
         settings = {}
+    global ENGLISH_FIXES
+    ENGLISH_FIXES = {str(k): str(v) for k, v in (settings.get("englishFixes") or {}).items() if str(k).strip()}
     effective_brand = build_hyperframes.resolve_brand_profile(brand, settings)
 
     input_mp4 = os.path.join(project_dir, "input.mp4")
