@@ -103,7 +103,8 @@
     { "wrong": "شورتس", "right": "Shorts" },
     { "wrong": "ذكاء اصطناعي", "right": "الذكاء الاصطناعي" },
     { "wrong": "كاب كات", "right": "CapCut" },
-    { "wrong": "بريمير", "right": "Premiere" }
+    { "wrong": "بريمير", "right": "Premiere" },
+    { "wrong": "دخيرة", "right": "ذخيرة" }
   ]
 }
 
