@@ -178,6 +178,8 @@ jobs:
           mkdir -p deliver
           cp "$JOB/output.mp4" deliver/output.mp4
           for f in cover.png post.txt settings.json; do [ -f "$JOB/$f" ] && cp "$JOB/$f" deliver/ || true; done
+          [ -f "$JOB/work/raw_transcript.json" ] && cp "$JOB/work/raw_transcript.json" deliver/ || true
+          [ -f "$JOB/work/timeline_data.json" ] && cp "$JOB/work/timeline_data.json" deliver/ || true
           ls -la deliver
 
       - name: Upload deliverables (artifact)
