@@ -46,6 +46,49 @@ KEYWORD_EMOJIS: list[tuple[tuple[str, ...], str]] = [
 ]
 
 
+# key -> (css family, font file, weight range). Keys are what the app sends as arabicFont/hookFont/captionFont.
+FONT_REGISTRY = {
+    "cairo": ("CairoPro", "Cairo-Variable.ttf", "200 900"),
+    "tajawal": ("TajawalPro", "Tajawal-Bold.ttf", "100 900"),
+    "amiri": ("AmiriPro", "Amiri-Bold.ttf", "100 900"),
+    "changa": ("ChangaPro", "Changa-Variable.ttf", "200 900"),
+    "reemkufi": ("ReemKufiPro", "ReemKufi-Variable.ttf", "200 900"),
+    "almarai": ("AlmaraiPro", "Almarai-Bold.ttf", "100 900"),
+    "lalezar": ("LalezarPro", "Lalezar-Regular.ttf", "100 900"),
+    "elmessiri": ("ElMessiriPro", "ElMessiri-Variable.ttf", "400 700"),
+    "kufam": ("KufamPro", "Kufam-Variable.ttf", "400 900"),
+    "rakkas": ("RakkasPro", "Rakkas-Regular.ttf", "100 900"),
+    "lateef": ("LateefPro", "Lateef-Bold.ttf", "100 900"),
+    "scheherazade": ("ScheherazadePro", "ScheherazadeNew-Bold.ttf", "100 900"),
+    "notokufi": ("NotoKufiPro", "NotoKufiArabic-Variable.ttf", "100 900"),
+    "plex": ("PlexArabicPro", "IBMPlexSansArabic-Bold.ttf", "100 900"),
+    "readex": ("ReadexPro", "ReadexPro-Variable.ttf", "160 700"),
+    "mada": ("MadaPro", "Mada-Variable.ttf", "200 900"),
+    "marhey": ("MarheyPro", "Marhey-Variable.ttf", "300 700"),
+    "baloo": ("BalooPro", "BalooBhaijaan2-Variable.ttf", "400 800"),
+    "arefruqaa": ("ArefRuqaaPro", "ArefRuqaa-Bold.ttf", "100 900"),
+    "katibeh": ("KatibehPro", "Katibeh-Regular.ttf", "100 900"),
+    "lemonada": ("LemonadaPro", "Lemonada-Variable.ttf", "300 700"),
+    "jomhuria": ("JomhuriaPro", "Jomhuria-Regular.ttf", "100 900"),
+}
+
+
+def font_css_name(key, fallback="cairo"):
+    k = (key or "").strip().lower()
+    return FONT_REGISTRY.get(k, FONT_REGISTRY[fallback])[0]
+
+
+def font_faces_css(indent="    "):
+    out = []
+    for fam, fname, wt in FONT_REGISTRY.values():
+        out.append(
+            f'{indent}@font-face {{ font-family: "{fam}"; src: url("assets/fonts/{fname}") format("truetype"); '
+            f'font-weight: {wt}; font-style: normal; font-display: swap; }}'
+        )
+    return "\n".join(out)
+
+
+
 def hex_to_rgba(hex_color: str, alpha: float) -> str:
     clean = (hex_color or "#0C0C10").lstrip("#")
     if len(clean) == 3:
@@ -298,6 +341,12 @@ def build_project(
         })
     elif hook_title and show_hook_card:
         hook_dur = min(2.8, max(1.6, duration * 0.34))
+        try:
+            _hd = settings.get("hookDuration")
+            if _hd not in (None, ""):
+                hook_dur = max(0.8, min(8.0, float(_hd), duration * 0.6))
+        except (TypeError, ValueError):
+            pass
         sfx_cues.append({"file": os.path.join(root_dir, "assets", "sfx", "whoosh.wav"), "time": 0.04, "volume_db": sfx_db})
     else:
         hook_dur = 0.0
@@ -649,13 +698,7 @@ def build_project(
                     txt_col = "#FFFFFF"
             ov_font_key = (ov.get("fontFamily") or settings.get("arabicFont") or "cairo").strip().lower()
             # IMPORTANT: Use single quotes inside HTML style="..." attribute so double quotes never truncate style!
-            ov_font_css = {
-                "cairo": "'CairoPro'",
-                "tajawal": "'TajawalPro'",
-                "amiri": "'AmiriPro'",
-                "changa": "'ChangaPro'",
-                "reemkufi": "'ReemKufiPro'",
-            }.get(ov_font_key, "'CairoPro'")
+            ov_font_css = "'" + font_css_name(ov_font_key) + "'"
             txt = (ov.get("text") or "").strip().replace("_", " ")
             if txt:
                 # Render clean uniform text color (no random power-word yellow highlight on custom boxes)
@@ -766,51 +809,36 @@ def build_project(
     )
 
     root_font_key = (settings.get("arabicFont") or brand.get("defaults", {}).get("arabicFont") or "cairo").strip().lower()
-    root_font_css = {
-        "cairo": '"CairoPro"',
-        "tajawal": '"TajawalPro"',
-        "amiri": '"AmiriPro"',
-        "changa": '"ChangaPro"',
-        "reemkufi": '"ReemKufiPro"',
-    }.get(root_font_key, '"CairoPro"')
+    root_font_css = '"' + font_css_name(root_font_key) + '"'
+    hook_font_css = '"' + font_css_name(settings.get("hookFont") or root_font_key) + '"'
+    cap_font_css = '"' + font_css_name(settings.get("captionFont") or root_font_key) + '"'
+    _cs = settings.get("captionSize"); _cc = settings.get("captionColor")
+    _hs = settings.get("hookSize"); _hc = settings.get("hookColor")
+    custom_css = f'''
+    .cap-box {{ font-family: {cap_font_css}, "CairoPro", sans-serif; }}
+    .hook-title, .hook-pill {{ font-family: {hook_font_css}, "CairoPro", sans-serif; }}
+'''
+    if _cs not in (None, ""):
+        custom_css += f"    .cap-box {{ font-size: {max(24, min(96, int(float(_cs))))}px; }}\n"
+    if _cc:
+        custom_css += f"    .cap-box {{ color: {html.escape(str(_cc))}; }}\n"
+    if _hs not in (None, ""):
+        custom_css += f"    .hook-title {{ font-size: {max(28, min(120, int(float(_hs))))}px; }}\n"
+    if _hc:
+        custom_css += f"    .hook-title {{ color: {html.escape(str(_hc))}; }}\n"
+    if settings.get("showHookPill", True) is False:
+        custom_css += "    .hook-pill { display: none; }\n"
+    _hbg = settings.get("hookBg")
+    if _hbg:
+        custom_css += f"    .hook-card {{ background: {html.escape(str(_hbg))}; }}\n"
+    _hb = settings.get("hookBorder")
+    if _hb:
+        custom_css += f"    .hook-card {{ border-color: {html.escape(str(_hb))}; }}\n"
+    font_faces = font_faces_css()
 
     reel_html = f"""<template>
   <style>
-    @font-face {{
-      font-family: "CairoPro";
-      src: url("assets/fonts/Cairo-Variable.ttf") format("truetype");
-      font-weight: 200 900;
-      font-style: normal;
-      font-display: swap;
-    }}
-    @font-face {{
-      font-family: "TajawalPro";
-      src: url("assets/fonts/Tajawal-Bold.ttf") format("truetype");
-      font-weight: 100 900;
-      font-style: normal;
-      font-display: swap;
-    }}
-    @font-face {{
-      font-family: "AmiriPro";
-      src: url("assets/fonts/Amiri-Bold.ttf") format("truetype");
-      font-weight: 100 900;
-      font-style: normal;
-      font-display: swap;
-    }}
-    @font-face {{
-      font-family: "ChangaPro";
-      src: url("assets/fonts/Changa-Variable.ttf") format("truetype");
-      font-weight: 200 900;
-      font-style: normal;
-      font-display: swap;
-    }}
-    @font-face {{
-      font-family: "ReemKufiPro";
-      src: url("assets/fonts/ReemKufi-Variable.ttf") format("truetype");
-      font-weight: 200 900;
-      font-style: normal;
-      font-display: swap;
-    }}
+{font_faces}
     @font-face {{
       font-family: "MontserratPro";
       src: url("assets/fonts/Montserrat-Variable.ttf") format("truetype");
@@ -1456,6 +1484,7 @@ def build_project(
       font-size: 28px;
       font-weight: 900;
     }}
+{custom_css}
   </style>
 
   <div id="root" data-composition-id="reel" data-width="1080" data-height="1920">

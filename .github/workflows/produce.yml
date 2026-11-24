@@ -31,8 +31,26 @@ on:
           - medium
           - small
 
+      settings_json:
+        description: "Advanced: JSON object merged over the project settings (from the app)"
+        required: false
+        default: ""
+      assets_json:
+        description: "Advanced: JSON list of extra assets to download (music/lut/sfx/broll)"
+        required: false
+        default: ""
+      delivery:
+        description: "Where to deliver the result"
+        required: true
+        default: "both"
+        type: choice
+        options:
+          - both
+          - artifact
+          - drive
+
 concurrency:
-  group: produce-video
+  group: produce-video-dev
   cancel-in-progress: false
 
 jobs:
@@ -44,10 +62,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: System dependencies
+      - name: System dependencies (only what is missing)
         run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y ffmpeg fonts-noto fonts-noto-extra cmake build-essential
+          need=""
+          command -v ffmpeg >/dev/null || need="$need ffmpeg"
+          command -v cmake >/dev/null || need="$need cmake build-essential"
+          fc-list | grep -qi "color emoji" || need="$need fonts-noto-color-emoji"
+          if [ -n "$need" ]; then
+            sudo apt-get update -qq
+            sudo apt-get install -y --no-install-recommends $need
+          fi
+          ffmpeg -version | head -1
 
       - uses: actions/setup-node@v4
         with:
@@ -66,7 +91,8 @@ jobs:
           echo "$HOME/.deno/bin" >> "$GITHUB_PATH"
 
       - name: Cache hyperframes runtime (whisper build, models, npm, chrome)
-        uses: actions/cache@v4
+        id: hfcache
+        uses: actions/cache/restore@v4
         with:
           path: |
             ~/.cache/hyperframes
@@ -108,7 +134,7 @@ jobs:
           SOURCE_URL: ${{ inputs.source_url }}
         run: |
           mkdir -p "$JOB"
-          python3 scripts/download_url.py "$SOURCE_URL" "$JOB/input.mp4"
+          python3 scripts/fetch_sources.py "$SOURCE_URL" "$JOB/input.mp4"
           test -s "$JOB/input.mp4"
           ls -la "$JOB/input.mp4"
 
@@ -138,10 +164,33 @@ jobs:
           PY
           cat "$JOB/settings.json"
 
+      - name: Apply app options (settings overrides, assets)
+        env:
+          SETTINGS_JSON: ${{ inputs.settings_json }}
+          ASSETS_JSON: ${{ inputs.assets_json }}
+        run: python3 scripts/apply_job_options.py
+
       - name: Run pipeline (6 stages)
         run: python3 scripts/auto_edit.py "$JOB" --mode full
 
+      - name: Collect deliverables
+        run: |
+          mkdir -p deliver
+          cp "$JOB/output.mp4" deliver/output.mp4
+          for f in cover.png post.txt settings.json; do [ -f "$JOB/$f" ] && cp "$JOB/$f" deliver/ || true; done
+          ls -la deliver
+
+      - name: Upload deliverables (artifact)
+        if: inputs.delivery != 'drive'
+        uses: actions/upload-artifact@v4
+        with:
+          name: video-${{ github.run_number }}
+          path: deliver/
+          retention-days: 14
+          compression-level: 0
+
       - name: Re-encode if over 25 MB and upload to Drive (private)
+        if: inputs.delivery != 'artifact'
         env:
           GDRIVE_SA_JSON: ${{ secrets.GDRIVE_SA_JSON }}
           DRIVE_FOLDER_ID: ${{ secrets.DRIVE_FOLDER_ID }}
@@ -174,6 +223,15 @@ jobs:
           if [ -f "$JOB/post.txt" ]; then rclone copy "$JOB/post.txt" "$DEST"; fi
           shred -u /tmp/sa.json
           rclone lsl "$DEST"
+
+      - name: Save runtime cache (even if a later step failed)
+        if: always() && steps.hfcache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            ~/.cache/hyperframes
+            ~/.npm/_npx
+          key: hf-${{ runner.os }}-v2
 
       - name: Prune work dir
         if: always()
