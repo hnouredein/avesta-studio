@@ -157,6 +157,9 @@ def detect_cuts(words: list[dict[str, Any]], min_silence: float, pad: float) -> 
     return cuts
 
 
+MERGE_ORPHAN_LAST = False  # set per run (settings mergeOrphanCaption): fold a lone final word into the previous caption
+
+
 def build_chunks(words: list[dict[str, Any]], max_words: int = 4, max_gap: float = 0.5) -> list[dict[str, Any]]:
     chunks: list[dict[str, Any]] = []
     buf: list[dict[str, Any]] = []
@@ -181,6 +184,16 @@ def build_chunks(words: list[dict[str, Any]], max_words: int = 4, max_gap: float
         if w["word"].endswith((".", "!", "?", "؟", "،", ",")):
             flush()
     flush()
+    if MERGE_ORPHAN_LAST and len(chunks) >= 2 and len(chunks[-1]["words"]) == 1:
+        last = chunks.pop()
+        prev = chunks[-1]
+        if last["start"] - prev["end"] <= max_gap and not prev["words"][-1]["word"].endswith((".", "!", "?", "؟", "،", ",")):
+            prev["words"] = prev["words"] + last["words"]
+            prev["end"] = last["end"]
+            prev["text"] = " ".join(x["word"] for x in prev["words"])
+            prev["rtl_text"] = isolate_latin_for_rtl(prev["text"])
+        else:
+            chunks.append(last)
     return chunks
 
 

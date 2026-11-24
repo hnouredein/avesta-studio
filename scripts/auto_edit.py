@@ -846,6 +846,7 @@ def main() -> None:
         settings = {}
     global ENGLISH_FIXES
     ENGLISH_FIXES = {str(k): str(v) for k, v in (settings.get("englishFixes") or {}).items() if str(k).strip()}
+    clean_transcript.MERGE_ORPHAN_LAST = bool(settings.get("mergeOrphanCaption", False))
     global ENGLISH_OVERRIDE
     ENGLISH_OVERRIDE = settings.get("englishOverride") or None
     effective_brand = build_hyperframes.resolve_brand_profile(brand, settings)
@@ -1058,6 +1059,26 @@ def main() -> None:
                 shutil.copy2(cut_body_mp4, cut_mp4)
         else:
             shutil.copy2(cut_body_mp4, cut_mp4)
+
+        # optional tail (settings ctaTail, seconds): hold the last frame with silence so the CTA outro plays AFTER the speech
+        try:
+            _tail = max(0.0, min(6.0, float(settings.get("ctaTail", 0) or 0)))
+        except (TypeError, ValueError):
+            _tail = 0.0
+        if _tail > 0.05:
+            _ext = cut_mp4 + ".tail.mp4"
+            _r = run_cmd([
+                "ffmpeg", "-y", "-i", cut_mp4,
+                "-vf", f"tpad=stop_mode=clone:stop_duration={_tail:.3f}",
+                "-af", f"apad=pad_dur={_tail:.3f}",
+                "-c:v", "libx264", "-preset", "superfast", "-crf", "16", "-g", "30", "-pix_fmt", "yuv420p",
+                "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-movflags", "+faststart", _ext,
+            ], capture=True)
+            if _r.returncode == 0 and os.path.exists(_ext):
+                os.replace(_ext, cut_mp4)
+                print(f"⏱️ إضافة ذيل {_tail:.1f}s بعد الكلام لعرض الخاتمة بعد انتهاء الكلام.", flush=True)
+            else:
+                print(f"⚠️ تعذّر إضافة الذيل: {(_r.stderr or '')[:200]}", flush=True)
 
         new_dur = probe_media(cut_mp4)["duration"]
         if applied_teaser_dur > 0:
