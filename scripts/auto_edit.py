@@ -959,7 +959,14 @@ def main() -> None:
         # --- STAGE 3: WHISPER TRANSCRIPTION ---
         emit_stage(3, 6, 42, "تفريغ الكلام بالذكاء الاصطناعي (Whisper)...")
         words: list[dict[str, Any]] = []
-        if has_real_audio and settings.get("whisperEnabled", True):
+        _ovr = settings.get("transcriptOverride")
+        if has_real_audio and isinstance(_ovr, list) and _ovr:
+            # deterministic re-render: use a supplied (corrected) word list instead of re-running whisper
+            words = clean_transcript.extract_words(_ovr)
+            with open(os.path.join(work_dir, "raw_transcript.json"), "w", encoding="utf-8") as _f:
+                json.dump(_ovr, _f, ensure_ascii=False, indent=2)
+            print(f"📝 استخدام تفريغ جاهز ومصحّح ({len(words)} كلمة) بدون Whisper.", flush=True)
+        elif has_real_audio and settings.get("whisperEnabled", True):
             model = settings.get("whisperModel", "small")
             lang = settings.get("language", brand.get("language", "ar"))
             words = transcribe_with_hyperframes(graded_mp4, work_dir, model, lang)
