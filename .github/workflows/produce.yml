@@ -1,4 +1,5 @@
 name: Produce video
+run-name: "Produce ${{ inputs.title }} ${{ inputs.client_ref }}"
 
 on:
   workflow_dispatch:
@@ -8,6 +9,10 @@ on:
         required: true
       title:
         description: "Video title (Arabic), optional"
+        required: false
+        default: ""
+      client_ref:
+        description: "App tracking tag, optional"
         required: false
         default: ""
       hook_title:
