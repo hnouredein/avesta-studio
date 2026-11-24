@@ -551,7 +551,7 @@ def build_project(
                 wt = float(words_arr[j]["start"]) if use_exact else (c_start + j * step_w)
                 wt = round(max(c_start, min(c_start + c_dur - 0.08, wt)), 3)
                 caption_tweens.append(
-                    f'    tl.fromTo("#{wid}", {{ color: "{primary}", scale: 1 }}, {{ color: "{accent}", scale: 1.12, duration: 0.09, ease: "back.out(2.2)" }}, {wt});'
+                    f'    tl.fromTo("#{wid}", {{ color: "{primary}", scale: 1 }}, {{ color: "{accent}", scale: 1.06, duration: 0.09, ease: "back.out(2.2)" }}, {wt});'
                 )
             inner_cap = " ".join(word_spans)
         else:
@@ -1325,7 +1325,8 @@ def build_project(
 
     .kw {{
       display: inline-block;
-      margin: 0 4px;
+      margin: 0 11px;
+      transform-origin: 50% 60%;
     }}
 
     .pw {{
