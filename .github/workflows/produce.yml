@@ -102,7 +102,7 @@ jobs:
           path: |
             ~/.cache/hyperframes
             ~/.npm/_npx
-          key: hf-${{ runner.os }}-v2
+          key: hf-${{ runner.os }}-v3
 
       - name: Build whisper.cpp (pinned v1.9.5)
         run: |
@@ -112,7 +112,7 @@ jobs:
             rm -rf "$WD"
             mkdir -p "$(dirname "$WD")"
             git clone --depth 1 --branch v1.9.5 https://github.com/ggml-org/whisper.cpp.git "$WD"
-            cmake -S "$WD" -B "$WD/build"
+            cmake -S "$WD" -B "$WD/build" -DGGML_NATIVE=OFF -DCMAKE_BUILD_TYPE=Release
             cmake --build "$WD/build" --config Release -j4
           fi
           ls -la "$WD/build/bin/whisper-cli"
@@ -234,7 +234,7 @@ jobs:
           path: |
             ~/.cache/hyperframes
             ~/.npm/_npx
-          key: hf-${{ runner.os }}-v2
+          key: hf-${{ runner.os }}-v3
 
       - name: Prune work dir
         if: always()
