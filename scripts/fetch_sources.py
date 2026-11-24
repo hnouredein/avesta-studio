@@ -69,9 +69,8 @@ def main():
             f.write(f"file '{os.path.abspath(n)}'\n")
     run(["ffmpeg", "-y", "-v", "error", "-f", "concat", "-safe", "0", "-i", lst, "-c", "copy",
          "-movflags", "+faststart", out])
-    for f in os.listdir(workdir):
-        os.remove(os.path.join(workdir, f))
-    os.rmdir(workdir)
+    import shutil
+    shutil.rmtree(workdir, ignore_errors=True)
     print(f"joined {len(urls)} clips -> {out}", flush=True)
 
 

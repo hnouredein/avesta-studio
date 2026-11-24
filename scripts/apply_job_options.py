@@ -16,6 +16,7 @@ DEST = {
     "lut": os.path.join(ROOT, "assets", "luts"),
     "sfx": os.path.join(ROOT, "assets", "sfx"),
     "broll": os.path.join(JOB, "broll"),
+    "voice": os.path.join(JOB, "work"),
 }
 
 
@@ -47,6 +48,8 @@ def main():
         os.makedirs(DEST[kind], exist_ok=True)
         name = safe(a.get("name") or a["url"].split("/")[-1])
         out = os.path.join(DEST[kind], name)
+        if kind == "voice":
+            out = os.path.join(DEST[kind], "custom_voice_raw" + (os.path.splitext(name)[1] or ".m4a"))
         req = urllib.request.Request(a["url"], headers=UA)
         with urllib.request.urlopen(req, timeout=120) as r, open(out, "wb") as w:
             while True:
@@ -57,6 +60,8 @@ def main():
         print(f"asset {kind}: {name} ({os.path.getsize(out)} bytes)")
         if kind == "music":
             s["musicFile"] = name
+        elif kind == "voice":
+            s["audioSource"] = "custom"
         elif kind == "lut":
             s["lutFile"] = name
         elif kind == "sfx":
@@ -67,6 +72,17 @@ def main():
     if s.get("musicFile") == "none":
         s["musicFile"] = "auto"
         s["musicDb"] = -99
+
+    if s.get("audioSource") == "tts" and str(s.get("ttsText") or "").strip():
+        import subprocess, sys
+        work = os.path.join(JOB, "work")
+        os.makedirs(work, exist_ok=True)
+        subprocess.run([
+            sys.executable, os.path.join(ROOT, "scripts", "tts_arabic.py"),
+            "--text", str(s["ttsText"]), "--out", os.path.join(work, "tts_voice.wav"),
+            "--voice", str(s.get("ttsVoice") or "salma"), "--rate", str(s.get("ttsRate") or "+0%"),
+            "--preset", str(s.get("voicePreset") or "studio"),
+        ], check=True)
 
     with open(path, "w", encoding="utf-8") as f:
         json.dump(s, f, ensure_ascii=False, indent=2)
