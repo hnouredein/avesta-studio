@@ -963,6 +963,10 @@ def main() -> None:
         # --- STAGE 4: GLOSSARY + SMART SILENCE CUTS + 3s TEASER HOOK ---
         emit_stage(4, 6, 56, "تطبيق القاموس وقصّ السكوت وتجهيز هوك الـ 3 ثواني...")
         glossary = load_combined_glossary(brand)
+        # per-run corrections (settings_json: {"glossaryExtra": {"wrong": "right"}}), not saved globally
+        for _w, _r in (settings.get("glossaryExtra") or {}).items():
+            if str(_w).strip() and str(_r).strip():
+                glossary[str(_w).strip()] = str(_r).strip()
         words = clean_transcript.apply_glossary(words, glossary)
 
         graded_info = probe_media(graded_mp4)
