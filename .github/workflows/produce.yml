@@ -192,19 +192,15 @@ jobs:
       - name: Re-encode if over 25 MB and upload to Drive (private)
         if: inputs.delivery != 'artifact'
         env:
-          GDRIVE_SA_JSON: ${{ secrets.GDRIVE_SA_JSON }}
-          DRIVE_FOLDER_ID: ${{ secrets.DRIVE_FOLDER_ID }}
+          RCLONE_CONF: ${{ secrets.RCLONE_CONF }}
           RUN: ${{ github.run_number }}
         run: |
           set -e
           curl -fsSL https://rclone.org/install.sh | sudo bash
-          printf '%s' "$GDRIVE_SA_JSON" > /tmp/sa.json
-          chmod 600 /tmp/sa.json
-          export RCLONE_CONFIG_DRV_TYPE=drive
-          export RCLONE_CONFIG_DRV_SCOPE=drive
-          export RCLONE_CONFIG_DRV_SERVICE_ACCOUNT_FILE=/tmp/sa.json
-          export RCLONE_CONFIG_DRV_ROOT_FOLDER_ID="$DRIVE_FOLDER_ID"
-          DEST="drv:avesta/$(date +%F)-job${RUN}"
+          printf '%s' "$RCLONE_CONF" > /tmp/rclone.conf
+          chmod 600 /tmp/rclone.conf
+          DEST="drive:avesta/$(date +%F)-job${RUN}"
+          RFLAGS="--config /tmp/rclone.conf"
           OUT="$JOB/output.mp4"
           FINAL="$OUT"
           SZ=$(stat -c%s "$OUT")
@@ -218,11 +214,11 @@ jobs:
             FINAL="$JOB/output_25mb.mp4"
           fi
           cp "$FINAL" "$JOB/final.mp4"
-          rclone copy "$JOB/final.mp4" "$DEST" --stats-one-line
-          if [ -f "$JOB/cover.png" ]; then rclone copy "$JOB/cover.png" "$DEST"; fi
-          if [ -f "$JOB/post.txt" ]; then rclone copy "$JOB/post.txt" "$DEST"; fi
-          shred -u /tmp/sa.json
-          rclone lsl "$DEST"
+          rclone $RFLAGS copy "$JOB/final.mp4" "$DEST" --stats-one-line
+          if [ -f "$JOB/cover.png" ]; then rclone $RFLAGS copy "$JOB/cover.png" "$DEST"; fi
+          if [ -f "$JOB/post.txt" ]; then rclone $RFLAGS copy "$JOB/post.txt" "$DEST"; fi
+          rclone $RFLAGS lsl "$DEST"
+          shred -u /tmp/rclone.conf
 
       - name: Save runtime cache (even if a later step failed)
         if: always() && steps.hfcache.outputs.cache-hit != 'true'
