@@ -1,1 +1,7 @@
-{"enabled": false, "language": "ar", "whisper_model": "small", "delivery": "both", "settings": {}}
+{
+ "enabled": true,
+ "language": "en",
+ "whisper_model": "small",
+ "delivery": "artifact",
+ "settings": {}
+}
