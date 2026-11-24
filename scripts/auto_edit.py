@@ -17,6 +17,7 @@ import array
 import glob
 import hashlib
 import json
+import time
 import math
 import os
 import re
@@ -498,13 +499,49 @@ def transcribe_with_hyperframes(video_path: str, work_dir: str, model: str, lang
     return clean_transcript.extract_words(parsed_payload)
 
 
-def _gtx_translate(text: str, sl: str, tl: str) -> str:
+def _gtx_once(text: str, sl: str, tl: str) -> str:
     q = urllib.parse.quote(text)
     url = f"https://translate.googleapis.com/translate_a/single?client=gtx&sl={sl}&tl={tl}&dt=t&q={q}"
     req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-    with urllib.request.urlopen(req, timeout=8) as resp:
+    with urllib.request.urlopen(req, timeout=15) as resp:
         data = json.loads(resp.read().decode("utf-8"))
     return "".join(part[0] for part in (data[0] or []) if part and part[0]).strip()
+
+
+def _alt_translate(text: str, sl: str, tl: str) -> str:
+    """Second endpoint (Google dict-chrome-ex client)."""
+    q = urllib.parse.quote(text)
+    url = f"https://clients5.google.com/translate_a/t?client=dict-chrome-ex&sl={sl}&tl={tl}&q={q}"
+    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+    with urllib.request.urlopen(req, timeout=15) as resp:
+        data = json.loads(resp.read().decode("utf-8"))
+    if data and isinstance(data[0], list):
+        data = [d[0] if isinstance(d, list) else d for d in data]
+    return "".join(str(x) for x in data).strip()
+
+
+def _mymemory_translate(text: str, sl: str, tl: str) -> str:
+    q = urllib.parse.quote(text[:480])
+    url = f"https://api.mymemory.translated.net/get?q={q}&langpair={sl}|{tl}"
+    with urllib.request.urlopen(urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"}), timeout=15) as resp:
+        data = json.loads(resp.read().decode("utf-8"))
+    return (data.get("responseData") or {}).get("translatedText", "").strip()
+
+
+def _gtx_translate(text: str, sl: str, tl: str) -> str:
+    """Translate with retries (3 x backoff) over three endpoints. Raises only if all fail."""
+    last: Exception | None = None
+    for attempt in range(3):
+        for fn in (_gtx_once, _alt_translate, _mymemory_translate):
+            try:
+                out = fn(text, sl, tl)
+                if out:
+                    return out
+            except Exception as e:  # noqa: BLE001
+                last = e
+                print(f"   (translate {fn.__name__} attempt {attempt + 1} failed: {type(e).__name__} {e})", flush=True)
+        time.sleep(1.5 * (attempt + 1))
+    raise last or RuntimeError("translate failed")
 
 
 def populate_bilingual_captions(captions: list[dict[str, Any]], src_lang: str = "ar") -> None:
@@ -547,6 +584,8 @@ def populate_bilingual_captions(captions: list[dict[str, Any]], src_lang: str = 
                     ch["text"] = tr
             else:
                 ch["en_text"] = tr
+            if not (ch.get("en_text") or "").strip() and sl != "en":
+                print("   (no English translation for caption: " + orig[:30] + ")", flush=True)
 
 
 def load_combined_glossary(brand: dict[str, Any]) -> dict[str, str]:
