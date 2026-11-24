@@ -1,7 +1,6 @@
 name: Auto mode
 on:
-  schedule:
-    - cron: "*/15 * * * *"
+  # schedule trigger disabled: unattended auto-dispatch removed (manual dispatch only)
   workflow_dispatch:
 permissions:
   contents: write
