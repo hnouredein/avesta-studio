@@ -105,7 +105,8 @@
     { "wrong": "كاب كات", "right": "CapCut" },
     { "wrong": "بريمير", "right": "Premiere" },
     { "wrong": "دخيرة", "right": "ذخيرة" },
-    { "wrong": "يصاف", "right": "مصاف" }
+    { "wrong": "يصاف", "right": "مصاف" },
+    { "wrong": "بصاف", "right": "مصاف" }
   ]
 }
 
