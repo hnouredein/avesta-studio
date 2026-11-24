@@ -168,8 +168,8 @@ jobs:
           rclone $RFLAGS copy "$JOB/final.mp4" "$DEST" --stats-one-line
           if [ -f "$JOB/cover.png" ]; then rclone $RFLAGS copy "$JOB/cover.png" "$DEST"; fi
           if [ -f "$JOB/post.txt" ]; then rclone $RFLAGS copy "$JOB/post.txt" "$DEST"; fi
-          shred -u /tmp/rclone.conf
           rclone $RFLAGS lsl "$DEST"
+          shred -u /tmp/rclone.conf
 
       - name: Prune work dir
         if: always()
