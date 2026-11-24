@@ -1,5 +1,5 @@
 {
-  "enabled": true,
+  "enabled": false,
   "language": "en",
   "whisper_model": "small",
   "delivery": "artifact",
