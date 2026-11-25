@@ -3,6 +3,8 @@ adb('shell', 'am', 'force-stop', PKG)
 adb('shell', 'am', 'start', '-n', PKG + '/.MainActivity', '--es', 'api_base', 'http://10.0.2.2:18089', '--es', 'token', 'READ')
 time.sleep(7); shot('launch')
 TABY = 1284
+def tapxy(x, y, wait=1.2): adb('shell','input','tap',str(x),str(y)); time.sleep(wait)
+
 # preview select hook
 tapxy(540, 444, 1.5); shot('select_hook')
 # type hook text in the field
