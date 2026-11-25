@@ -16,7 +16,8 @@ with zipfile.ZipFile(zb,'w',zipfile.ZIP_STORED) as z: z.writestr('output.mp4',MP
 ZIP=zb.getvalue()
 brand_text=open(REPO+'/studio/brand-config.json',encoding='utf8').read(); brand=json.loads(brand_text)
 B64=base64.b64encode(brand_text.encode()).decode()
-LOG=[]; BODIES=[]; HITS=[0]
+LOG=[]
+FILES={}; BODIES=[]; HITS=[0]
 class H(http.server.BaseHTTPRequestHandler):
     protocol_version='HTTP/1.1'
     def log_message(self,*a): pass
@@ -34,6 +35,11 @@ class H(http.server.BaseHTTPRequestHandler):
         LOG.append(m+' '+p)
         R='/repo'
         if p==R: return self.out(200,'{"default_branch":"main"}')
+        if p==R+'/actions/workflows/app-write.yml/dispatches':
+            inp=json.loads(self.body())['inputs']; FILES[inp['path']]=base64.b64decode(inp['content_b64']); BODIES.append('WRITE '+inp['path']+' '+inp['message']+' auth='+str(auth)[:14]); return self.out(204)
+        if p.startswith(R+'/contents/') and m=='GET' and p[len(R)+10:] in FILES:
+            return self.out(200,json.dumps({"sha":"NEW","content":base64.b64encode(FILES[p[len(R)+10:]]).decode()}))
+        if p.startswith(R+'/contents/') and m=='PUT': BODIES.append('ILLEGAL-PUT '+p); return self.out(403,'{}')
         if p==R+'/contents/studio/brand-config.json' and m=='GET': return self.out(200,json.dumps({"sha":"SHA1","content":B64}))
         if p==R+'/contents/studio/brand-config.json' and m=='PUT':
             b=self.body().decode()
