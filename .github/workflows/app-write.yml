@@ -1,0 +1,67 @@
+name: app-write
+# Lets the Android app save identities, auto-mode settings and logos without any write token on the phone.
+# Only a fixed list of studio files and logo images can be written, content is validated first.
+on:
+  workflow_dispatch:
+    inputs:
+      path:
+        description: target file
+        required: true
+      content_b64:
+        description: base64 file content
+        required: true
+      message:
+        description: commit note
+        required: true
+permissions:
+  contents: write
+concurrency:
+  group: app-write
+  cancel-in-progress: false
+jobs:
+  write:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: validate and commit
+        env:
+          IN_PATH: ${{ inputs.path }}
+          IN_B64: ${{ inputs.content_b64 }}
+          IN_MSG: ${{ inputs.message }}
+        run: |
+          set -euo pipefail
+          case "$IN_PATH" in
+            studio/brand-config.json|studio/auto.json|studio/queue.json) kind=json ;;
+            assets/logo/logo-[a-z0-9]*.png) kind=png ;;
+            *) echo "path not allowed"; exit 1 ;;
+          esac
+          case "$IN_PATH" in *..*|*//*) echo "bad path"; exit 1 ;; esac
+          printf '%s' "$IN_B64" | base64 -d > /tmp/new
+          [ "$(stat -c %s /tmp/new)" -lt 200000 ] || { echo "too large"; exit 1; }
+          if [ "$kind" = json ]; then
+            python3 - "$IN_PATH" <<'PY'
+          import json, sys
+          d = json.load(open('/tmp/new'))
+          p = sys.argv[1]
+          if p.endswith('brand-config.json'):
+              assert isinstance(d.get('profiles'), list) and d['profiles'], 'profiles missing'
+              assert all(isinstance(x, dict) and x.get('id') for x in d['profiles']), 'profile id missing'
+          if p.endswith('queue.json'):
+              assert isinstance(d, list)
+          if p.endswith('auto.json'):
+              assert isinstance(d, dict)
+          PY
+          else
+            head -c 8 /tmp/new | od -An -tx1 | tr -d ' \n' | grep -q '^89504e470d0a1a0a$' || { echo "not a png"; exit 1; }
+          fi
+          mkdir -p "$(dirname "$IN_PATH")"
+          cp /tmp/new "$IN_PATH"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "$IN_PATH"
+          if git diff --cached --quiet; then echo "no change"; exit 0; fi
+          msg="app: $(printf '%s' "$IN_MSG" | tr -cd '[:alnum:] :._-' | head -c 80)"
+          git commit -m "$msg"
+          for i in 1 2 3; do git push && exit 0; git pull --rebase; done
+          exit 1
