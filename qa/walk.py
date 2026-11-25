@@ -3,14 +3,14 @@ OUT = sys.argv[1] if len(sys.argv) > 1 else 'shots'; os.makedirs(OUT, exist_ok=T
 PKG = 'com.ghenawi.helna'; n = [0]
 class _R: stdout=b''; returncode=1
 def adb(*a, **k):
-    try: return subprocess.run(['adb'] + list(a), capture_output=True, timeout=40, **k)
+    try: return subprocess.run(['adb'] + list(a), capture_output=True, timeout=25, **k)
     except Exception as e:
         print('ADB-TIMEOUT', a[:3], flush=True); return _R()
 def shot(name):
     n[0] += 1; p = '%s/%02d_%s.png' % (OUT, n[0], name)
     open(p, 'wb').write(adb('exec-out', 'screencap', '-p').stdout); print('shot', p, flush=True)
 def dump():
-    for _ in range(3):
+    for _ in range(2):
         r = adb('exec-out', 'uiautomator', 'dump', '/dev/tty').stdout.decode('utf8', 'ignore')
         i = r.find('<?xml'); j = r.rfind('</hierarchy>')
         if i >= 0 and j > 0:
@@ -18,12 +18,18 @@ def dump():
             except Exception: pass
         time.sleep(1)
     return None
+CACHE = {}
 def nodes():
     t = dump(); out = []
-    if t is None: return out
+    if t is None:
+        print('DUMP-FAIL using cache', flush=True)
+        return [(k, v[0], '', '') for k, v in CACHE.items()]
     for e in t.iter('node'):
         m = re.match(r'\[(\d+),(\d+)\]\[(\d+),(\d+)\]', e.get('bounds', ''))
-        if m: out.append((e.get('text', '') or e.get('content-desc', ''), tuple(map(int, m.groups())), e.get('class', ''), e.get('clickable')))
+        if m:
+            tx = e.get('text', '') or e.get('content-desc', '')
+            out.append((tx, tuple(map(int, m.groups())), e.get('class', ''), e.get('clickable')))
+            if tx: CACHE[tx] = (tuple(map(int, m.groups())),)
     return out
 def find(txt, ns=None):
     for t, b, c, k in (ns or nodes()):
