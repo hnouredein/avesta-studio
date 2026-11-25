@@ -22,6 +22,7 @@ jobs:
           sudo udevadm trigger --name-match=kvm
       - name: Make test video
         run: |
+          which ffmpeg || (sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg)
           ffmpeg -loglevel error -f lavfi -i testsrc2=size=540x960:rate=24 -f lavfi -i sine=frequency=440 -t 6 -pix_fmt yuv420p -c:v libx264 -c:a aac -shortest qa/out.mp4
           ffmpeg -loglevel error -i qa/out.mp4 -frames:v 1 qa/cover.png
       - name: Start mock
