@@ -549,7 +549,7 @@ def build_project(
         if not raw_text:
             continue
         hl_word = (ch.get("highlight") or "").strip()
-        emoji = detect_keyword_emoji(raw_text)
+        emoji = detect_keyword_emoji(raw_text) if settings.get("emojiPops", True) is not False else ""
         emoji_html = f'<div id="{cid}-emoji" class="emoji-pop">{emoji}</div>' if emoji else ""
 
         if caption_style == "karaoke":
