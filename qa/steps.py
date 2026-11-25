@@ -42,6 +42,6 @@ fg(); tab('فيديوهاتي'); time.sleep(1); shot('library_after_play')
 tap('حفظ', 3); shot('library_saved')
 tap('🗑', 1.5); shot('library_delete_dialog'); tap('حذف', 3); shot('library_after_delete')
 # ---- brand
-fg(); tab('الهوية'); time.sleep(1); print('LOGCAT', adb('shell','logcat','-d','-s','AndroidRuntime:E').stdout.decode('utf8','ignore')[-3000:], flush=True); pages('brand', 3)
+fg(); print('BAR',[(t,b) for t,b,c,k in nodes() if 'الهوية' in t or 'فيديوهاتي' in t], flush=True); tab('الهوية'); time.sleep(1); print('AFTER',[(t,b) for t,b,c,k in nodes() if 'الهوية' in t][:6], flush=True); print('LOGCAT', adb('shell','logcat','-d','-s','AndroidRuntime:E').stdout.decode('utf8','ignore')[-3000:], flush=True); pages('brand', 3)
 # ---- settings
 fg(); tab('الإعدادات'); time.sleep(2); pages('settings', 3)
