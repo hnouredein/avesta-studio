@@ -24,13 +24,16 @@ def nodes():
 def find(txt, ns=None):
     for t, b, c, k in (ns or nodes()):
         if txt in t: return b
-def tap(txt, wait=1.2):
+def tap(txt, wait=1.2, scroll=0):
     b = find(txt)
+    for _ in range(scroll):
+        if b: break
+        scroll_down(); b = find(txt)
     if not b: print('MISSING', txt, flush=True); return False
     adb('shell', 'input', 'tap', str((b[0] + b[2]) // 2), str((b[1] + b[3]) // 2)); time.sleep(wait); return True
 def swipe(x1, y1, x2, y2, ms=500): adb('shell', 'input', 'swipe', str(x1), str(y1), str(x2), str(y2), str(ms)); time.sleep(0.8)
 def text(s): adb('shell', 'input', 'text', s)
-def scroll_down(): swipe(540, 1700, 540, 600); 
-def scroll_up(): swipe(540, 600, 540, 1700)
+def scroll_down(): swipe(540, 1700, 540, 700)
+def scroll_up(): swipe(540, 700, 540, 1700)
 def dumpnames(tag):
     print('--- UI', tag, [t for t, b, c, k in nodes() if t][:60], flush=True)
