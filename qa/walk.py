@@ -1,7 +1,11 @@
 import subprocess, re, time, sys, os, xml.etree.ElementTree as ET
 OUT = sys.argv[1] if len(sys.argv) > 1 else 'shots'; os.makedirs(OUT, exist_ok=True)
 PKG = 'com.ghenawi.helna'; n = [0]
-def adb(*a, **k): return subprocess.run(['adb'] + list(a), capture_output=True, **k)
+class _R: stdout=b''; returncode=1
+def adb(*a, **k):
+    try: return subprocess.run(['adb'] + list(a), capture_output=True, timeout=40, **k)
+    except Exception as e:
+        print('ADB-TIMEOUT', a[:3], flush=True); return _R()
 def shot(name):
     n[0] += 1; p = '%s/%02d_%s.png' % (OUT, n[0], name)
     open(p, 'wb').write(adb('exec-out', 'screencap', '-p').stdout); print('shot', p, flush=True)
