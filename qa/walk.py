@@ -11,12 +11,14 @@ def shot(name):
     open(p, 'wb').write(adb('exec-out', 'screencap', '-p').stdout); print('shot', p, flush=True)
 def dump():
     for _ in range(2):
-        r = adb('exec-out', 'uiautomator', 'dump', '/dev/tty').stdout.decode('utf8', 'ignore')
+        adb('shell', 'rm', '-f', '/sdcard/ui.xml')
+        adb('shell', 'uiautomator', 'dump', '/sdcard/ui.xml')
+        r = adb('shell', 'cat', '/sdcard/ui.xml').stdout.decode('utf8', 'ignore')
         i = r.find('<?xml'); j = r.rfind('</hierarchy>')
         if i >= 0 and j > 0:
             try: return ET.fromstring(r[i:j + 12])
             except Exception: pass
-        time.sleep(1)
+        adb('shell', 'pkill', '-f', 'uiautomator'); time.sleep(2)
     return None
 CACHE = {}
 def nodes():
