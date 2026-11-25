@@ -39,6 +39,12 @@ class H(http.server.BaseHTTPRequestHandler):
             b=self.body().decode()
             if auth!='Bearer WRITE': return self.out(403,'{"message":"Resource not accessible"}')
             BODIES.append('PUT-brand '+b); return self.out(200,'{}')
+        if p in (R+'/contents/studio/auto.json', R+'/contents/studio/queue.json'):
+            key=p.split('/')[-1]
+            if m=='GET': return self.out(200,json.dumps({"sha":"S2","content":base64.b64encode(open(REPO+'/studio/'+key,'rb').read()).decode()}))
+            b=self.body().decode()
+            if auth!='Bearer WRITE': return self.out(403,'{}')
+            BODIES.append('PUT-'+key+' '+b); return self.out(200,'{}')
         if p.startswith(R+'/contents/assets/logo/') and m=='GET':
             fp=REPO+'/assets/logo/'+p.split('/')[-1]
             return self.out(200,open(fp,'rb').read() if os.path.exists(fp) else PNG,'image/png')
