@@ -54,7 +54,7 @@ class H(http.server.BaseHTTPRequestHandler):
             return self.out(200,json.dumps({"workflow_runs":[{"id":112,"status":"in_progress","conclusion":None,"display_title":"Produce  gm1-aaa","created_at":"2026-11-25T10:00:00Z"},{"id":111,"status":"completed","conclusion":"success","display_title":"Produce  gm1-bbb","created_at":"2026-11-25T09:00:00Z"}]}))
         if p==R+'/actions/artifacts' and m=='GET':
             return self.out(200,json.dumps({"artifacts":[{"id":9,"name":"video-81","size_in_bytes":len(ZIP),"expired":False,"created_at":"2026-11-25T09:05:00Z","workflow_run":{"id":111}}]}))
-        if p==R+'/actions/artifacts/9/zip': return self.out(302,b'',extra={'Location':'http://127.0.0.1:%d/blob/9'%PORT})
+        if p==R+'/actions/artifacts/9/zip': return self.out(302,b'',extra={'Location':'http://%s/blob/9'%self.headers.get('Host','10.0.2.2:%d'%PORT)})
         if p=='/blob/9':
             HITS[0]+=1; rg=self.headers.get('Range')
             if not rg:
