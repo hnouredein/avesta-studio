@@ -1,0 +1,48 @@
+name: apk-qa
+on:
+  workflow_dispatch:
+    inputs:
+      journey:
+        description: journey script
+        default: journey.py
+jobs:
+  walk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          path: repo
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Make test video
+        run: |
+          ffmpeg -loglevel error -f lavfi -i testsrc2=size=540x960:rate=24 -f lavfi -i sine=frequency=440 -t 6 -pix_fmt yuv420p -c:v libx264 -c:a aac -shortest qa/out.mp4
+          ffmpeg -loglevel error -i qa/out.mp4 -frames:v 1 qa/cover.png
+      - name: Start mock
+        run: |
+          nohup python3 qa/mock.py 18089 qa/out.mp4 qa/cover.png repo > mock.out 2>&1 &
+          sleep 2; curl -s localhost:18089/__log | head -c 100
+      - name: Emulator walkthrough
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: google_apis
+          profile: pixel_6
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          script: bash qa/run.sh ${{ inputs.journey }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: walk-shots
+          path: |
+            qa/shots
+            qa/walk.log
+            mock.out
