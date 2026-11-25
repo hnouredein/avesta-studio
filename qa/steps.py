@@ -6,7 +6,9 @@ def pages(name, n=4):
 def top():
     for i in range(6): scroll_up()
 def back(): adb('shell', 'input', 'keyevent', '4'); time.sleep(1)
-def tab(name): tap(name, 2.5)
+TABX={'إنتاج':.9,'الاستوديو':.7,'فيديوهاتي':.5,'الهوية':.3,'الإعدادات':.1}
+def tab(name):
+    adb('shell','input','tap',str(int(1080*TABX[name])),'2260'); time.sleep(2.5)
 def fg():
     # make sure the app is in front
     if not find('إنتاج') and not find('الاستوديو'):
