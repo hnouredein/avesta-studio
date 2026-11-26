@@ -5,6 +5,9 @@ on:
       journey:
         description: journey script
         default: journey.py
+permissions:
+  contents: read
+
 jobs:
   walk:
     runs-on: ubuntu-latest

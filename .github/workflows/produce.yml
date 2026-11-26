@@ -58,6 +58,9 @@ concurrency:
   group: produce-video
   cancel-in-progress: false
 
+permissions:
+  contents: read
+
 jobs:
   produce:
     runs-on: ubuntu-latest
