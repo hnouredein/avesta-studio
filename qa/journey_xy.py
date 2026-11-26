@@ -3,6 +3,9 @@ adb('shell', 'am', 'force-stop', PKG)
 adb('shell', 'am', 'start', '-n', PKG + '/.MainActivity', '--es', 'api_base', 'http://10.0.2.2:18089', '--es', 'token', 'READ')
 time.sleep(7); shot('launch')
 TABY = 1284
+def back(): adb('shell','input','keyevent','4'); time.sleep(1)
+def swipe(x1,y1,x2,y2,ms=500): adb('shell','input','swipe',str(x1),str(y1),str(x2),str(y2),str(ms)); time.sleep(0.8)
+def text(s): adb('shell','input','text',s)
 def tapxy(x, y, wait=1.2): adb('shell','input','tap',str(x),str(y)); time.sleep(wait)
 
 # preview select hook
