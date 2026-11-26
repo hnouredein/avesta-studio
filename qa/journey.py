@@ -5,7 +5,7 @@ def back(): adb('shell','input','keyevent','4'); time.sleep(1)
 adb('shell','am','force-stop',PKG)
 adb('shell','am','start','-n',PKG+'/.MainActivity','--es','api_base','http://10.0.2.2:18089','--es','token','READ')
 time.sleep(7); shot('launch_permission')
-tap('Allow', 1.5); shot('composer_empty'); dumpnames('composer')
+adb('shell','input','tap','540','1306'); time.sleep(2); shot('composer_empty'); dumpnames('composer')
 # type text, check estimate
 adb('shell','input','tap','540','700'); time.sleep(1); text('hello%sworld%sone%stwo%sthree%sfour'); time.sleep(1); back(); shot('text_typed_estimate')
 tap('ولّد', 2); shot('progress_1'); time.sleep(6); shot('progress_2'); dumpnames('progress')
