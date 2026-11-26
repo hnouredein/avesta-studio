@@ -1,0 +1,51 @@
+import subprocess, re, time, sys, os, xml.etree.ElementTree as ET
+OUT = sys.argv[1] if len(sys.argv) > 1 else 'shots'; os.makedirs(OUT, exist_ok=True)
+PKG = 'com.nile.hamedvoice'; n = [0]
+class _R: stdout=b''; returncode=1
+def adb(*a, **k):
+    try: return subprocess.run(['adb'] + list(a), capture_output=True, timeout=25, **k)
+    except Exception as e:
+        print('ADB-TIMEOUT', a[:3], flush=True); return _R()
+def shot(name):
+    n[0] += 1; p = '%s/%02d_%s.png' % (OUT, n[0], name)
+    open(p, 'wb').write(adb('exec-out', 'screencap', '-p').stdout); print('shot', p, flush=True)
+def dump():
+    for _ in range(2):
+        adb('shell', 'rm', '-f', '/sdcard/ui.xml')
+        adb('shell', 'uiautomator', 'dump', '/sdcard/ui.xml')
+        r = adb('shell', 'cat', '/sdcard/ui.xml').stdout.decode('utf8', 'ignore')
+        i = r.find('<?xml'); j = r.rfind('</hierarchy>')
+        if i >= 0 and j > 0:
+            try: return ET.fromstring(r[i:j + 12])
+            except Exception: pass
+        adb('shell', 'pkill', '-f', 'uiautomator'); time.sleep(2)
+    return None
+CACHE = {}
+def nodes():
+    t = dump(); out = []
+    if t is None:
+        print('DUMP-FAIL using cache', flush=True)
+        return [(k, v[0], '', '') for k, v in CACHE.items()]
+    for e in t.iter('node'):
+        m = re.match(r'\[(\d+),(\d+)\]\[(\d+),(\d+)\]', e.get('bounds', ''))
+        if m:
+            tx = e.get('text', '') or e.get('content-desc', '')
+            out.append((tx, tuple(map(int, m.groups())), e.get('class', ''), e.get('clickable')))
+            if tx: CACHE[tx] = (tuple(map(int, m.groups())),)
+    return out
+def find(txt, ns=None):
+    for t, b, c, k in (ns or nodes()):
+        if txt in t: return b
+def tap(txt, wait=1.2, scroll=0):
+    b = find(txt)
+    for _ in range(scroll):
+        if b: break
+        scroll_down(); b = find(txt)
+    if not b: print('MISSING', txt, flush=True); return False
+    adb('shell', 'input', 'tap', str((b[0] + b[2]) // 2), str((b[1] + b[3]) // 2)); time.sleep(wait); return True
+def swipe(x1, y1, x2, y2, ms=500): adb('shell', 'input', 'swipe', str(x1), str(y1), str(x2), str(y2), str(ms)); time.sleep(0.8)
+def text(s): adb('shell', 'input', 'text', s)
+def scroll_down(): swipe(540, 1700, 540, 700)
+def scroll_up(): swipe(540, 700, 540, 1700)
+def dumpnames(tag):
+    print('--- UI', tag, [t for t, b, c, k in nodes() if t][:60], flush=True)
