@@ -1,0 +1,30 @@
+from walk import *
+def sh(cmd): 
+    r = adb('shell', cmd); out = (r.stdout or b'').decode('utf8','ignore'); print('SH', cmd[:70], '->', out.strip()[:500], flush=True); return out
+def back(): adb('shell','input','keyevent','4'); time.sleep(1)
+adb('shell','am','force-stop',PKG)
+adb('shell','am','start','-n',PKG+'/.MainActivity','--es','api_base','http://10.0.2.2:18089','--es','token','READ')
+time.sleep(7); shot('launch_permission')
+tap('Allow', 1.5); shot('composer_empty'); dumpnames('composer')
+# type text, check estimate
+adb('shell','input','tap','540','700'); time.sleep(1); text('hello%sworld%sone%stwo%sthree%sfour'); time.sleep(1); back(); shot('text_typed_estimate')
+tap('ولّد', 2); shot('progress_1'); time.sleep(6); shot('progress_2'); dumpnames('progress')
+time.sleep(20); shot('after_wait'); dumpnames('after_wait')
+tap('المكتبة', 1.5); shot('library_1'); dumpnames('library')
+tap('تشغيل', 2.5); shot('playing'); sh('dumpsys media_session | grep -m3 -i "state=PlaybackState"')
+tap('إيقاف', 1.5)
+tap('مشاركة', 2.5); shot('share_chooser'); back()
+tap('حفظ', 2); shot('saved_toast'); sh('ls /sdcard/Music/*/')
+sh('run-as com.nile.hamedvoice ls -R files/clips')
+sh('dumpsys notification --noredact | grep -m3 "الصوت جاهز"')
+# second job: failure -> auto retry, fast quality, power voice
+tap('توليد', 1.5)
+adb('shell','input','tap','540','700'); time.sleep(1); text('FAIL%stext%stwo'); time.sleep(1); back()
+tap('قوي', 0.8); tap('سريع', 0.8); shot('second_options_est')
+tap('ولّد', 2); shot('job2_progress'); time.sleep(12); shot('job2_retrying'); dumpnames('job2')
+time.sleep(35); shot('job2_after'); dumpnames('job2_after')
+tap('المكتبة', 1.5); shot('library_2'); dumpnames('library2')
+tap('الإعدادات', 1.5); shot('settings')
+tap('المكتبة', 1.5)
+tap('حذف التسجيل', 1.5); shot('delete_dialog'); tap('حذف', 1.5)
+shot('library_after_delete'); sh('run-as com.nile.hamedvoice ls files/clips')
